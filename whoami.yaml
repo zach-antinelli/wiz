@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: whoami
-          image: containous/whoami
+          image: ${IMAGE_URI}
           ports:
             - containerPort: 80
 
@@ -41,15 +41,15 @@ kind: Ingress
 metadata:
   name: whoami-ingress
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
     alb.ingress.kubernetes.io/certificate-arn: ${ACM_ARN}
     alb.ingress.kubernetes.io/ssl-redirect: "443"
 spec:
+  ingressClassName: alb
   rules:
-    - host: ${ALB_DNS_NAME}
+    - host: ${ALB_DNS}
       http:
         paths:
           - path: /*
