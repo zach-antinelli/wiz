@@ -4,18 +4,20 @@ Hey Patrick 👋, I am excited to be interviewing with you!
 
 Here are some resources I prepared for today:
 
-| Link     | Description |
-|----------|----------|
-| [GH Pages Site](https://zachantinelli.me) | Github pages site, link to resume in upper right |
-| [Demo](https://wiz.zachantinelli.me)   | Demo of whoami app hosted on EKS |
-| [whoami.yaml](/whoami.yaml) | k8s manifest for basic app demo |
-| [tf-eks](https://github.com/zachantinelli/tf-eks) | Terraform for EKS cluster used by demo |
+| Link                                              | Description                                      |
+| ------------------------------------------------- | ------------------------------------------------ |
+| [GH Pages Site](https://zachantinelli.me)         | Github pages site, link to resume in upper right |
+| [Demo](https://wiz.zachantinelli.me)              | Demo of whoami app hosted on EKS                 |
+| [whoami.yaml](/whoami.yaml)                       | k8s manifest for basic app demo                  |
+| [tf-eks](https://github.com/zachantinelli/tf-eks) | Terraform for EKS cluster used by demo           |
 
 ## Demo app
 
-I am hosting a basic web app on AWS EKS using a container image `traefik/whoami` to display OS and HTTP request details.
+I am hosting a simple web app on AWS EKS using a container image `traefik/whoami` to display OS and HTTP request details.
 
-```
+[wiz.zachantinelli.me](https://wiz.zachantinelli.me)
+
+```text
 Hostname: whoami-66c94d8bc8-kzhq4
 IP: 127.0.0.1
 IP: ::1
