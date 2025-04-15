@@ -9,7 +9,7 @@ Here are some resources I prepared for today:
 | [GH Pages Site](https://zachantinelli.me)         | Github pages site, link to resume in upper right |
 | [Demo](https://wiz.zachantinelli.me)              | Demo of whoami app hosted on EKS                 |
 | [whoami.yaml](/whoami.yaml)                       | k8s manifest for basic app demo                  |
-| [tf-eks](https://github.com/zachantinelli/tf-eks) | Terraform for EKS cluster used by demo           |
+| [tf-eks](https://github.com/zach-antinelli/tf-eks) | Terraform for EKS cluster used by demo           |
 
 ## Demo app
 
