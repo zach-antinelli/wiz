@@ -2,7 +2,7 @@
 
 Hey Patrick 👋, I am excited to be interviewing with you!
 
-| Link                                               | Description                                      |
+| Resource                                           | Description                                      |
 | -------------------------------------------------- | ------------------------------------------------ |
 | [GH Pages Site](https://zachantinelli.me)          | Github pages site, link to resume in upper right |
 | [Demo](https://wiz.zachantinelli.me)               | Demo of whoami app hosted on EKS                 |
