@@ -1,14 +1,12 @@
-# wiz interview
+# Wiz initial interview
 
 Hey Patrick 👋, I am excited to be interviewing with you!
 
-Here are some resources I prepared for today:
-
-| Link                                              | Description                                      |
-| ------------------------------------------------- | ------------------------------------------------ |
-| [GH Pages Site](https://zachantinelli.me)         | Github pages site, link to resume in upper right |
-| [Demo](https://wiz.zachantinelli.me)              | Demo of whoami app hosted on EKS                 |
-| [whoami.yaml](/whoami.yaml)                       | k8s manifest for basic app demo                  |
+| Link                                               | Description                                      |
+| -------------------------------------------------- | ------------------------------------------------ |
+| [GH Pages Site](https://zachantinelli.me)          | Github pages site, link to resume in upper right |
+| [Demo](https://wiz.zachantinelli.me)               | Demo of whoami app hosted on EKS                 |
+| [whoami.yaml](/whoami.yaml)                        | k8s manifest for basic app demo                  |
 | [tf-eks](https://github.com/zach-antinelli/tf-eks) | Terraform for EKS cluster used by demo           |
 
 ## Demo app
