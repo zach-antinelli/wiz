@@ -14,16 +14,16 @@ while [[ "$#" -gt 0 ]]; do
     IMAGE_NAME="${2:-gensen}"
     shift 2
     ;;
-  -v | --version)
-    IMAGE_VERSION="${2}"
+  -p | --port)
+    FLASK_PORT="${2:-8080}"
     shift 2
     ;;
   -t | --tag)
     IMAGE_TAG="${2:-latest}"
     shift 2
     ;;
-  -p | --port)
-    FLASK_PORT="${2:-8080}"
+  -v | --version)
+    IMAGE_VERSION="${2}"
     shift 2
     ;;
   *)
@@ -36,7 +36,6 @@ done
 echo "Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
 
 docker build \
-  -f "$(pwd)/Dockerfile" \
   -t "${IMAGE_NAME}:${IMAGE_TAG}" \
   --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
   --build-arg VERSION="$IMAGE_VERSION" \

@@ -38,7 +38,8 @@ jobs:
 
       - name: Build, tag, and push image to ECR
         run: |
-          bash tech-exercise/web-app/build.sh -n "$APP_NAME" -t "$IMAGE_TAG"
+          cd tech-exercise/web-app
+          bash build.sh -n "$APP_NAME" -t "$IMAGE_TAG"
           docker tag "${APP_NAME}:${IMAGE_TAG}" "${ECR_REPOSITORY}:${IMAGE_TAG}"
           docker push "${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
 
