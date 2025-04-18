@@ -1,4 +1,4 @@
-# Wiz initial interview
+# Initial interview
 
 Hey Patrick 👋, I am excited to be interviewing with you!
 
