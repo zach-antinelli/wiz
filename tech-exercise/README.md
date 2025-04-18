@@ -1,6 +1,6 @@
 # Tech Exercise
 
-[Instructions](/tech-exercise/wiz-provided/Wiz_Field_Tech_Exercise_v3.0_Instructions.pdf)
+[Instructions](_instructions/Wiz_Field_Tech_Exercise_v3.0_Instructions.pdf)
 
 Thank you for the opportunity! I've laid out my architecture and overview of the solutions based on the provided instructions.
 
