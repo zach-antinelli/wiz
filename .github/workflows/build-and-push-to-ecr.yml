@@ -18,6 +18,7 @@ jobs:
       APP_NAME: ${{ vars.APP_NAME }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      ECR_REPOSITORY: "${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.APP_NAME }}"
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
@@ -34,18 +35,15 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        # The login action handles authentication but we won't use its registry output
 
       - name: Build, tag, and push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           cd tech-exercise/web-app
           bash build.sh -n "$APP_NAME" -t "$IMAGE_TAG"
-          docker tag "${APP_NAME}:${IMAGE_TAG}" "${ECR_REGISTRY}/${APP_NAME}:${IMAGE_TAG}"
-          docker push "${ECR_REGISTRY}/${APP_NAME}:${IMAGE_TAG}"
+          docker tag "${APP_NAME}:${IMAGE_TAG}" "${ECR_REPOSITORY}:${IMAGE_TAG}"
+          docker push "${ECR_REPOSITORY}:${IMAGE_TAG}"
 
       - name: Echo Image URL
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          echo "Image pushed: ${ECR_REGISTRY}/${APP_NAME}:${IMAGE_TAG}"
+          echo "Image pushed: ${ECR_REPOSITORY}:${IMAGE_TAG}"
