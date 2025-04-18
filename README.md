@@ -1,6 +1,6 @@
 # 🧙‍♂️ Wiz interview resources
 
-I am so excited for the opportunity to interview with you. Thank you!
+I am so excited for the opportunity to interview with you.
 
 ## Resources
 
