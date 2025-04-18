@@ -40,4 +40,4 @@ docker build \
   --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
   --build-arg VERSION="$IMAGE_VERSION" \
   --build-arg FLASK_PORT="$FLASK_PORT" \
-  .
+  "$(pwd)"
