@@ -36,8 +36,9 @@ done
 echo "Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
 
 docker build \
+  -f "$(pwd)/Dockerfile" \
   -t "${IMAGE_NAME}:${IMAGE_TAG}" \
   --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
   --build-arg VERSION="$IMAGE_VERSION" \
   --build-arg FLASK_PORT="$FLASK_PORT" \
-  "$(pwd)"
+  .
