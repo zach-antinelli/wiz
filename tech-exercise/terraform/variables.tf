@@ -1,0 +1,103 @@
+variable "region" {
+  description = "AWS region to deploy the EKS cluster"
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version to use for the EKS cluster"
+  type        = string
+  default     = "1.32"
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "availability_zones" {
+  description = "Availability zones to use for the subnets in the VPC"
+  type        = list(string)
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets to host load balancers"
+  type        = list(string)
+  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
+variable "node_instance_type" {
+  description = "EC2 instance type for EKS nodes"
+  type        = string
+  default     = "t4g.small"
+
+  validation {
+    condition     = can(regex(".*g.*", var.node_instance_type))
+    error_message = "Instance type must be Graviton compatible (e.g., t4g.small)"
+  }
+}
+
+variable "node_volume_size" {
+  description = "Size of the node EBS volume"
+  type        = number
+  default     = 20
+}
+
+variable "node_group_min_size" {
+  description = "Minimum size of the node group"
+  type        = number
+  default     = 1
+}
+
+variable "node_group_max_size" {
+  description = "Maximum size of the node group"
+  type        = number
+  default     = 3
+}
+
+variable "node_group_desired_size" {
+  description = "Desired size of the node group"
+  type        = number
+  default     = 1
+}
+
+variable "node_group_capacity_type" {
+  description = "Capacity type for the node group"
+  type        = string
+  default     = "SPOT"
+
+  validation {
+    condition     = contains(["ON_DEMAND", "SPOT"], var.node_group_capacity_type)
+    error_message = "Capacity type must be either ON_DEMAND or SPOT"
+  }
+}
+
+variable "tags" {
+  description = "Tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "bucket_name" {
+  description = "Name of the S3 bucket to be created"
+  type        = string
+  default     = "zantinelli-wiz-tech-exercise"
+
+  validation {
+    condition     = can(regex("^[a-z0-9.-]{3,63}$", var.bucket_name))
+    error_message = "Bucket name must be lowercase, between 3 and 63 characters, and can only contain lowercase letters, numbers, dots, and hyphens."
+  }
+}

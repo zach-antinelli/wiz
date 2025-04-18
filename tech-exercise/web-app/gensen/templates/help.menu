@@ -1,0 +1,20 @@
+╔═════════════════════════════════════════════════════════════╗
+║                           HELP MENU                         ║
+╚═════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────┐
+│                   NATURAL LANGUAGE QUERIES                  │
+│                                                             │
+│ Any input that is not a defined command will be treated as  │
+│ natural language query and executed against the DB.         │
+│                                                             │
+│ Example: "Get prowler results"                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                     AVAILABLE COMMANDS                      │
+│                                                             │
+│ clear       Clears the terminal screen                      │
+│ help        Shows this help message                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
