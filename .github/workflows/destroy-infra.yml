@@ -32,25 +32,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: state download
+        uses: badgerhobbs/terraform-state@v2
+        with:
+          operation: download
+          location: artifact
+          github_token: ${{ secrets.GH_ACCESS_TOKEN }}
+        continue-on-error: true
+
       - name: init
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
-
-      - name: state pull
-        uses: dflook/terraform-state@v1
-        id: terraform-state
-        with:
-          path: ${{ env.TF_WORKING_DIR }}
-          workspace: default
-          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
-
-      - name: backup state
-        if: success()
-        run: |
-          if [ -f "${{ env.TF_WORKING_DIR }}/terraform.tfstate" ]; then
-            mkdir -p "${{ env.TF_WORKING_DIR }}/state-backups"
-            cp "${{ env.TF_WORKING_DIR }}/terraform.tfstate" "${{ env.TF_WORKING_DIR }}/state-backups/terraform.tfstate.backup-$(date +%Y%m%d-%H%M%S)"
-          fi
 
       - name: destroy
         id: destroy
@@ -63,15 +55,7 @@ jobs:
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="key_name=${{ secrets.KEY_NAME }}"
 
-      - name: state push
-        uses: dflook/terraform-state@v1
-        if: always()
-        with:
-          path: ${{ env.TF_WORKING_DIR }}
-          workspace: default
-          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
-
-      - name: generate destruction report
+      - name: destroy output
         if: success()
         run: |
           echo "### Infrastructure Destruction Report" > destruction_report.md
@@ -82,7 +66,7 @@ jobs:
           echo "" >> destruction_report.md
           echo "Initiated by: ${{ github.actor }}" >> destruction_report.md
 
-      - name: upload destruction report
+      - name: destroy output upload
         if: success()
         uses: actions/upload-artifact@v4
         with:
@@ -90,7 +74,7 @@ jobs:
           path: destruction_report.md
           retention-days: 30
 
-      - name: report errors
+      - name: destroy error
         if: failure()
         run: |
           echo "### Infrastructure Destruction Failed" > destruction_error.md
@@ -101,7 +85,7 @@ jobs:
           echo "" >> destruction_error.md
           echo "Please check the logs for more details." >> destruction_error.md
 
-      - name: upload error report
+      - name: destroy upload error
         if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -109,11 +93,10 @@ jobs:
           path: destruction_error.md
           retention-days: 30
 
-      - name: upload state backup
+      - name: state upload
+        uses: badgerhobbs/terraform-state@v2
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: terraform-state-backup-${{ github.run_id }}
-          path: ${{ env.TF_WORKING_DIR }}/state-backups/
-          retention-days: 90
-          if-no-files-found: ignore
+          operation: upload
+          location: artifact
+          github_token: ${{ secrets.GH_ACCESS_TOKEN }}
