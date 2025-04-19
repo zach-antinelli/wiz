@@ -36,20 +36,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Init
+      - name: init
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
-      - name: Terraform Format
+      - name: format
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check
         continue-on-error: true
 
-      - name: Validate
+      - name: validate
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
-      - name: Plan
+      - name: plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform plan -out=tfplan \
@@ -59,12 +59,12 @@ jobs:
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="key_name=${{ secrets.KEY_NAME }}"
 
-      - name: Apply
+      - name: apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
 
-      - name: Output
+      - name: output
         if: github.ref == 'refs/heads/main'
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
@@ -73,7 +73,7 @@ jobs:
           terraform output -json | jq -r 'to_entries | .[] | "\(.key) = \(.value.value)"' >> terraform_output.md
           echo '```' >> terraform_output.md
 
-      - name: Upload output artifact
+      - name: upload output
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
@@ -90,26 +90,26 @@ jobs:
       AWS_REGION: ${{ vars.AWS_REGION }}
       TF_WORKING_DIR: tech-exercise/terraform
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Setup
+      - name: setup
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.4
 
-      - name: AWS Configure
+      - name: configure
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Init
+      - name: init
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
-      - name: Destroy
+      - name: destroy
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform destroy -auto-approve \
