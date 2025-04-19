@@ -28,29 +28,59 @@ module "vpc" {
   tags = var.tags
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = module.vpc.vpc_id
-  service_name      = "com.amazonaws.${var.region}.s3"
-  vpc_endpoint_type = "Gateway"
-  route_table_ids   = module.vpc.private_route_table_ids
-}
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "~> 5.0"
 
-resource "aws_vpc_endpoint" "ecr_api" {
-  vpc_id              = module.vpc.vpc_id
-  service_name        = "com.amazonaws.${var.region}.ecr.api"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = module.vpc.private_subnets
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
-}
+  vpc_id = module.vpc.vpc_id
 
-resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id              = module.vpc.vpc_id
-  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = module.vpc.private_subnets
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
+  security_group_ids = [aws_security_group.vpc_endpoints.id]
+
+  endpoints = {
+    s3 = {
+      service         = "s3"
+      service_type    = "Gateway"
+      route_table_ids = module.vpc.private_route_table_ids
+      tags            = var.tags
+    },
+    ecr_api = {
+      service             = "ecr.api"
+      service_type        = "Interface"
+      subnet_ids          = module.vpc.private_subnets
+      private_dns_enabled = true
+      tags                = var.tags
+    },
+    ecr_dkr = {
+      service             = "ecr.dkr"
+      service_type        = "Interface"
+      subnet_ids          = module.vpc.private_subnets
+      private_dns_enabled = true
+      tags                = var.tags
+    },
+    ssm = {
+      service             = "ssm"
+      service_type        = "Interface"
+      subnet_ids          = module.vpc.private_subnets
+      private_dns_enabled = true
+      tags                = var.tags
+    },
+    ssmmessages = {
+      service             = "ssmmessages"
+      service_type        = "Interface"
+      subnet_ids          = module.vpc.private_subnets
+      private_dns_enabled = true
+      tags                = var.tags
+    },
+    ec2messages = {
+      service             = "ec2messages"
+      service_type        = "Interface"
+      subnet_ids          = module.vpc.private_subnets
+      private_dns_enabled = true
+      tags                = var.tags
+    }
+  }
+
+  tags = var.tags
 }
 
 resource "aws_security_group" "vpc_endpoints" {

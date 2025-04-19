@@ -32,16 +32,26 @@ module "eks" {
 
   eks_managed_node_groups = {
     "${var.cluster_name}-node-group" = {
-      ami_type       = "AL2023_ARM_64_STANDARD"
+      ami_type       = "AL2023_x86_64_STANDARD"
       min_size       = var.node_group_min_size
       max_size       = var.node_group_max_size
       desired_size   = var.node_group_desired_size
       instance_types = [var.node_instance_type]
+      capacity_type  = var.node_group_capacity_type
 
-      subnet_ids = module.vpc.private_subnets
+      subnet_ids         = module.vpc.private_subnets
+      security_group_ids = [aws_security_group.worker_sg.id]
 
       create_iam_role = true
       iam_role_name   = "${var.cluster_name}-node-group-role"
+
+      iam_role_additional_policies = {
+        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        AmazonEBSCSIDriverPolicy           = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        AmazonSSMManagedInstanceCore       = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      }
 
       create_launch_template = true
       launch_template_name   = "${var.cluster_name}-lt"
@@ -65,16 +75,6 @@ module "eks" {
         instance_metadata_tags      = "enabled"
       }
 
-      security_group_ids = [aws_security_group.worker_sg.id]
-
-      iam_role_additional_policies = {
-        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-        AmazonEBSCSIDriverPolicy           = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-        AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-      }
-
-      capacity_type = var.node_group_capacity_type
     }
   }
 
@@ -109,6 +109,11 @@ module "eks_blueprints_addons" {
     }
     vpc-cni = {
       most_recent = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_POD_ENI = "true"
+        }
+      })
     }
   }
 

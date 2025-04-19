@@ -42,18 +42,14 @@ variable "public_subnet_cidrs" {
 variable "node_instance_type" {
   description = "EC2 instance type for EKS nodes"
   type        = string
-  default     = "t4g.small"
+  default     = "t3.medium"
 
-  validation {
-    condition     = can(regex(".*g.*", var.node_instance_type))
-    error_message = "Instance type must be Graviton compatible (e.g., t4g.small)"
-  }
 }
 
 variable "node_volume_size" {
   description = "Size of the node EBS volume"
   type        = number
-  default     = 20
+  default     = 50
 }
 
 variable "node_group_min_size" {
@@ -100,4 +96,19 @@ variable "bucket_name" {
     condition     = can(regex("^[a-z0-9.-]{3,63}$", var.bucket_name))
     error_message = "Bucket name must be lowercase, between 3 and 63 characters, and can only contain lowercase letters, numbers, dots, and hyphens."
   }
+}
+
+variable "key_name" {
+  description = "SSH Key pair for DB VM"
+  type        = string
+}
+
+variable "db_password" {
+  description = "Password for DB"
+  type        = string
+}
+
+variable "app_name" {
+  description = "Web app name"
+  type        = string
 }

@@ -57,3 +57,32 @@ resource "aws_iam_role_policy_attachment" "load_balancer_controller_policy_attac
   role       = aws_iam_role.load_balancer_controller_role.name
   policy_arn = aws_iam_policy.load_balancer_controller_policy.arn
 }
+
+data "aws_iam_policy_document" "db_vm_assume_role_policy" {
+  version = "2012-10-17"
+
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "db_vm_instance_role" {
+  name               = "${var.cluster_name}-db-vm-role"
+  assume_role_policy = data.aws_iam_policy_document.db_vm_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "administrator" {
+  role       = aws_iam_role.db_vm_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+resource "aws_iam_instance_profile" "db_vm_instance_profile" {
+  name = "${var.cluster_name}-db-vm-instance-profile"
+  role = aws_iam_role.db_vm_instance_role.name
+}

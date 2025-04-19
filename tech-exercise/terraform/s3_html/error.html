@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .error-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-top: 4px solid #dc2626;
+            max-width: 400px;
+        }
+        .error-icon {
+            color: #dc2626;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .error-code {
+            background: #fef2f2;
+            color: #dc2626;
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            color: #dc2626;
+        }
+        p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        .actions {
+            margin-bottom: 1.5rem;
+        }
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: #fff;
+            padding: 0.7rem 1.3rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0 0.3rem;
+            transition: background 0.2s;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .button-secondary {
+            background: #64748b;
+        }
+        .button-secondary:hover {
+            background: #334155;
+        }
+        .suggestions {
+            margin-top: 2rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 1.2rem;
+            text-align: left;
+            font-size: 0.98rem;
+        }
+        .suggestions ul {
+            margin-left: 1.2rem;
+        }
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.95rem;
+            padding: 2rem 1rem 1rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="error-code">Error 404</div>
+            <h1>Page Not Found</h1>
+            <p>The file or folder you requested could not be found.</p>
+            <div class="actions">
+                <a href="index.html" class="button"><i class="fas fa-home"></i> Home</a>
+                <a href="#" onclick="history.back(); return false;" class="button button-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
