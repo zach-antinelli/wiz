@@ -1,11 +1,11 @@
-name: Deploy Infrastructure - Test
+name: Destroy Infrastructure - Test
 
 on:
   workflow_dispatch:
 
 jobs:
   apply:
-    name: apply
+    name: destroy
     runs-on: ubuntu-latest
 
     steps:
@@ -67,9 +67,9 @@ jobs:
 
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -destroy -out=tfplan
 
-      - name: apply
+      - name: destroy
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
 
