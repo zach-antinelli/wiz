@@ -1,11 +1,11 @@
-name: Destroy Infrastructure - Test
+name: Deploy Infrastructure
 
 on:
   workflow_dispatch:
 
 jobs:
   apply:
-    name: destroy
+    name: apply
     runs-on: ubuntu-latest
 
     steps:
@@ -67,11 +67,17 @@ jobs:
 
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: terraform plan -destroy -out=tfplan
+        run: terraform plan -out=tfplan
 
-      - name: destroy
+      - name: apply
         working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve tfplan
+        run: |
+          terraform plan -out=tfplan \
+              -var="app_name=${{ vars.APP_NAME }}" \
+              -var="region=${{ vars.AWS_REGION }}" \
+              -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
+              -var="db_password=${{ secrets.DB_PASSWORD }}" \
+              -var="key_name=${{ secrets.KEY_NAME }}"
 
       - name: upload state
         uses: badgerhobbs/terraform-state@v2
