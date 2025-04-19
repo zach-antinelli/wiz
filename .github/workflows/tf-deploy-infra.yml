@@ -1,0 +1,119 @@
+name: Terraform Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tech-exercise/terraform/**"
+  workflow_dispatch:
+
+jobs:
+  apply:
+    name: apply
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_WORKING_DIR: tech-exercise/terraform
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init
+
+      - name: Terraform Format
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate
+
+      - name: Plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform plan -out=tfplan \
+            -var="app_name=${{ secrets.APP_NAME }}" \
+            -var="region=${{ vars.AWS_REGION }}" \
+            -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="key_name=${{ secrets.KEY_NAME }}"
+
+      - name: Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+
+      - name: Output
+        if: github.ref == 'refs/heads/main'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          echo "### Terraform Outputs" > terraform_output.md
+          echo '```' >> terraform_output.md
+          terraform output -json | jq -r 'to_entries | .[] | "\(.key) = \(.value.value)"' >> terraform_output.md
+          echo '```' >> terraform_output.md
+
+      - name: Upload output artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-output-${{ github.run_id }}
+          path: ${{ env.TF_WORKING_DIR }}/terraform_output.md
+          retention-days: 30
+
+  destroy:
+    name: destroy
+    runs-on: ubuntu-latest
+    needs: apply
+    if: github.event_name == 'workflow_dispatch'
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_WORKING_DIR: tech-exercise/terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init
+
+      - name: Destroy
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform destroy -auto-approve \
+            -var="app_name=${{ secrets.APP_NAME }}" \
+            -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="key_name=${{ secrets.KEY_NAME }}"
