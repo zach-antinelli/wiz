@@ -11,31 +11,109 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       TF_WORKING_DIR: tech-exercise/terraform
+
+    permissions:
+      contents: read
+      actions: write
+
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Setup
+      - name: setup
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.4
 
-      - name: AWS Configure
+      - name: configure
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Init
+      - name: init
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
-      - name: Destroy
+      - name: state pull
+        uses: dflook/terraform-state@v1
+        id: terraform-state
+        with:
+          path: ${{ env.TF_WORKING_DIR }}
+          workspace: default
+          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
+
+      - name: backup state
+        if: success()
+        run: |
+          if [ -f "${{ env.TF_WORKING_DIR }}/terraform.tfstate" ]; then
+            mkdir -p "${{ env.TF_WORKING_DIR }}/state-backups"
+            cp "${{ env.TF_WORKING_DIR }}/terraform.tfstate" "${{ env.TF_WORKING_DIR }}/state-backups/terraform.tfstate.backup-$(date +%Y%m%d-%H%M%S)"
+          fi
+
+      - name: destroy
+        id: destroy
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform destroy -auto-approve \
             -var="app_name=${{ secrets.APP_NAME }}" \
+            -var="region=${{ vars.AWS_REGION }}" \
             -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="key_name=${{ secrets.KEY_NAME }}"
+
+      - name: state push
+        uses: dflook/terraform-state@v1
+        if: always()
+        with:
+          path: ${{ env.TF_WORKING_DIR }}
+          workspace: default
+          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
+
+      - name: generate destruction report
+        if: success()
+        run: |
+          echo "### Infrastructure Destruction Report" > destruction_report.md
+          echo "" >> destruction_report.md
+          echo "Infrastructure was successfully destroyed at $(date)" >> destruction_report.md
+          echo "" >> destruction_report.md
+          echo "Workspace: default" >> destruction_report.md
+          echo "" >> destruction_report.md
+          echo "Initiated by: ${{ github.actor }}" >> destruction_report.md
+
+      - name: upload destruction report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-destroy-report-${{ github.run_id }}
+          path: destruction_report.md
+          retention-days: 30
+
+      - name: report errors
+        if: failure()
+        run: |
+          echo "### Infrastructure Destruction Failed" > destruction_error.md
+          echo "" >> destruction_error.md
+          echo "Failed to destroy infrastructure at $(date)" >> destruction_error.md
+          echo "" >> destruction_error.md
+          echo "Initiated by: ${{ github.actor }}" >> destruction_error.md
+          echo "" >> destruction_error.md
+          echo "Please check the logs for more details." >> destruction_error.md
+
+      - name: upload error report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-destroy-error-${{ github.run_id }}
+          path: destruction_error.md
+          retention-days: 30
+
+      - name: upload state backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-state-backup-${{ github.run_id }}
+          path: ${{ env.TF_WORKING_DIR }}/state-backups/
+          retention-days: 90
+          if-no-files-found: ignore
