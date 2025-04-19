@@ -49,17 +49,6 @@ jobs:
               echo "No previous state file found, assuming first run"
             fi
 
-      - name: Delete previous artifact
-        if: steps.check-state.outputs.state_exists == 'true'
-        run: |
-          ARTIFACT_ID=$(echo "$RESPONSE" | jq -r 'select(.name=="Terraform State") | .id')
-          if [ -n "$ARTIFACT_ID" ]; then
-            echo "Deleting artifact ID: $ARTIFACT_ID"
-            curl -X DELETE \
-              -H "Authorization: token ${{ secrets.GH_ACCESS_TOKEN }}" \
-              -s https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
-          fi
-
       - name: download state
         uses: badgerhobbs/terraform-state@v2
         if: steps.check-state.outputs.state_exists == 'true'
