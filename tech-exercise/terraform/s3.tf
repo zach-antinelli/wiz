@@ -117,13 +117,13 @@ resource "aws_s3_object" "index_html" {
   key          = "index.html"
   content_type = "text/html"
 
-  content = templatefile("${path.module}/s3_html/index.html", {
+  content = templatefile("${path.module}/html/index.html", {
     bucket = var.bucket_name,
     region = var.region,
     prefix = "backups/mysql/"
   })
 
-  etag = md5(templatefile("${path.module}/s3_html/index.html", {
+  etag = md5(templatefile("${path.module}/html/index.html", {
     bucket = var.bucket_name,
     region = var.region,
     prefix = "backups/mysql/"
@@ -133,7 +133,7 @@ resource "aws_s3_object" "index_html" {
 resource "aws_s3_object" "error_html" {
   bucket       = aws_s3_bucket.public_bucket.id
   key          = "error.html"
-  source       = "${path.module}/s3_html/error.html"
+  source       = "${path.module}/html/error.html"
   content_type = "text/html"
-  etag         = filemd5("${path.module}/s3_html/error.html")
+  etag         = filemd5("${path.module}/html/error.html")
 }
