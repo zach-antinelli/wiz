@@ -1,4 +1,4 @@
-name: Deploy Infrastructure
+name: Deploy Infrastructure - Test
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
-      TF_WORKING_DIR: tech-exercise/terraform
+      TF_WORKING_DIR: tech-exercise/test
 
     permissions:
       contents: read

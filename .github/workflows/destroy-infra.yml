@@ -37,6 +37,7 @@ jobs:
         with:
           operation: download
           location: artifact
+          directory: ${{ env.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
         continue-on-error: true
 
@@ -49,7 +50,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform destroy -auto-approve \
-            -var="app_name=${{ secrets.APP_NAME }}" \
+            -var="app_name=${{ vars.APP_NAME }}" \
             -var="region=${{ vars.AWS_REGION }}" \
             -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
@@ -99,4 +100,5 @@ jobs:
         with:
           operation: upload
           location: artifact
+          directory: ${{ env.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
