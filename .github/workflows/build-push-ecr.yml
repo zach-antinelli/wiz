@@ -7,7 +7,6 @@ on:
     paths:
       - "tech-exercise/web-app/Dockerfile"
       - "tech-exercise/web-app/gensen/**"
-      - ".github/workflows/build-and-push-to-ecr.yml"
 
 jobs:
   push-to-ecr:

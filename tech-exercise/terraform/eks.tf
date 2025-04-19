@@ -51,6 +51,7 @@ module "eks" {
         AmazonEBSCSIDriverPolicy           = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
         AmazonSSMManagedInstanceCore       = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        SecurityGroupForPodsPolicy         = aws_iam_policy.security_groups_for_pods.arn
       }
 
       create_launch_template = true
@@ -111,7 +112,11 @@ module "eks_blueprints_addons" {
       most_recent = true
       configuration_values = jsonencode({
         env = {
-          ENABLE_POD_ENI = "true"
+          ENABLE_POD_ENI               = "true"
+          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"
+          ENABLE_PREFIX_DELEGATION     = "true"
+          ENABLE_NETWORK_POLICY        = "true"
+          ENABLE_POD_SECURITY_GROUPS   = "true"
         }
       })
     }

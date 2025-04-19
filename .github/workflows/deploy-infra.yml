@@ -1,6 +1,12 @@
 name: Deploy Infrastructure
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tech-exercise/terraform/**"
+
   workflow_dispatch:
 
 jobs:
