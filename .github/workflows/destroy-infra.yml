@@ -71,9 +71,9 @@ jobs:
           terraform plan -destroy -out=tfplan \
               -var="app_name=${{ vars.APP_NAME }}" \
               -var="region=${{ vars.AWS_REGION }}" \
-              -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
-              -var="db_password=${{ secrets.DB_PASSWORD }}" \
-              -var="key_name=${{ secrets.KEY_NAME }}"
+              -var="key_name=${{ secrets.AWS_SSH_KEY_NAME }}" \
+              -var="db_password=${{ secrets.AWS_DB_PASSWORD }}" \
+              -var="bucket_name=${{ secrets.AWS_S3_BUCKET_NAME }}"
 
       - name: destroy
         working-directory: ${{ vars.TF_WORKING_DIR }}
