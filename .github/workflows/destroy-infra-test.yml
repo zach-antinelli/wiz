@@ -48,13 +48,7 @@ jobs:
       - name: destroy
         id: destroy
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform destroy -auto-approve \
-            -var="app_name=${{ vars.APP_NAME }}" \
-            -var="region=${{ vars.AWS_REGION }}" \
-            -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="key_name=${{ secrets.KEY_NAME }}"
+        run: terraform destroy -auto-approve
 
       - name: destroy output
         if: success()

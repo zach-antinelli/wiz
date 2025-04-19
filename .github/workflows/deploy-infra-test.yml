@@ -61,13 +61,7 @@ jobs:
 
       - name: plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform plan -out=tfplan \
-            -var="app_name=${{ vars.APP_NAME }}" \
-            -var="region=${{ vars.AWS_REGION }}" \
-            -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="key_name=${{ secrets.KEY_NAME }}"
+        run: terraform plan -out=tfplan
 
       - name: apply
         working-directory: ${{ env.TF_WORKING_DIR }}
