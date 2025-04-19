@@ -13,83 +13,83 @@ jobs:
     name: apply
     runs-on: ubuntu-latest
 
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      TF_WORKING_DIR: tech-exercise/test
-
-    permissions:
-      contents: read
-      actions: write
-
     steps:
-      - name: checkout
+      - name: checkout repo
         uses: actions/checkout@v4
 
-      - name: setup
+      - name: setup terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.4
 
-      - name: configure
+      - name: configure aws
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      - name: state download
+      - name: ensure working directory exists
+        run: mkdir -p ${{ vars.TF_WORKING_DIR }}
+
+      - name: check state
+        id: check-state
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: |
+            REPO="${{ github.repository }}"
+            ARTIFACT_URI="https://api.github.com/repos/$REPO/actions/artifacts"
+            TOKEN="${{ secrets.GH_ACCESS_TOKEN }}"
+            RESPONSE=$(curl -H "Authorization: token $TOKEN" -s $ARTIFACT_URI | jq -r '.artifacts[]')
+
+            if [[ $(echo "$RESPONSE" | grep -c "Terraform State") -gt 0 ]]; then
+              echo "state_exists=true" >> $GITHUB_OUTPUT
+            else
+              echo "state_exists=false" >> $GITHUB_OUTPUT
+              echo "No previous state file found, assuming first run"
+            fi
+
+      - name: download state
         uses: badgerhobbs/terraform-state@v2
+        if: steps.check-state.outputs.state_exists == 'true'
         with:
           operation: download
           location: artifact
-          directory: ${{ env.TF_WORKING_DIR }}
+          directory: ${{ vars.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
-        continue-on-error: true
+          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
 
       - name: init
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform init
 
       - name: format
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check
-        continue-on-error: true
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: terraform fmt
 
       - name: validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
       - name: plan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -out=tfplan
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: |
+          terraform plan -out=tfplan \
+            -var="app_name=${{ vars.APP_NAME }}" \
+            -var="region=${{ vars.AWS_REGION }}" \
+            -var="bucket_name=${{ secrets.BUCKET_NAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="key_name=${{ secrets.AWS_SSH_KEY_NAME }}"
 
       - name: apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        if: github.ref == 'refs/heads/main'
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
 
-      - name: output
-        if: github.ref == 'refs/heads/main' && success()
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          echo "### Terraform Outputs" > terraform_output.md
-          echo '```' >> terraform_output.md
-          terraform output -json | jq -r 'to_entries | .[] | "\(.key) = \(.value.value)"' >> terraform_output.md
-          echo '```' >> terraform_output.md
-
-      - name: output upload
-        if: github.ref == 'refs/heads/main' && success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-apply-output-${{ github.run_id }}
-          path: ${{ env.TF_WORKING_DIR }}/terraform_output.md
-          retention-days: 30
-
-      - name: state upload
+      - name: upload state
         uses: badgerhobbs/terraform-state@v2
         if: always()
         with:
           operation: upload
           location: artifact
-          directory: ${{ env.TF_WORKING_DIR }}
+          directory: ${{ vars.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
