@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - "tech-exercise/web-app/build.sh"
       - "tech-exercise/web-app/Dockerfile"
       - "tech-exercise/web-app/gensen/**"
 

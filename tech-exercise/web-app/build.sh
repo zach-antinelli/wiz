@@ -5,7 +5,7 @@ set -euo pipefail
 # Defaults
 IMAGE_NAME="gensen"
 IMAGE_TAG="latest"
-FLASK_PORT="8080"
+FLASK_PORT="80"
 IMAGE_VERSION="1.0.0"
 
 while [[ "$#" -gt 0 ]]; do
