@@ -70,7 +70,7 @@ module "eks" {
         )
 
         create_iam_role = true
-        iam_role_name   = "${var.cluster_name}-node-group-role-us-west-${az_suffix}"
+        iam_role_name   = "${var.cluster_name}-ng-role-${az_suffix}"
 
         iam_role_additional_policies = {
           AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
