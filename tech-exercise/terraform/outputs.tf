@@ -34,7 +34,7 @@ output "eks_cluster_id" {
 }
 
 output "eks_cluster_management_ip" {
-  value       = "The management IP ${local.management_ip_cidr} has been added to the cluster public API access security group"
+  value       = "The management IP ${var.management_ip_cidr} has been added to the cluster public API access security group"
   description = "Management IP Added to cluster public API access SG"
 }
 

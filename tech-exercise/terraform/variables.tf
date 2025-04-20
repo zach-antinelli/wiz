@@ -112,3 +112,8 @@ variable "app_name" {
   description = "Web app name"
   type        = string
 }
+
+variable "management_ip_cidr" {
+  description = "CIDR block for management IP"
+  type        = string
+}

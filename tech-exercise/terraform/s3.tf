@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     condition {
       test     = "IpAddress"
       variable = "aws:SourceIp"
-      values   = [local.management_ip_cidr]
+      values   = [var.management_ip_cidr]
     }
   }
 

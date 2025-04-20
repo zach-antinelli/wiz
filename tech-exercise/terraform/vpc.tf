@@ -140,7 +140,7 @@ resource "aws_security_group_rule" "cluster_api_public" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [local.management_ip_cidr]
+  cidr_blocks       = [var.management_ip_cidr]
   security_group_id = aws_security_group.cluster_sg.id
 }
 

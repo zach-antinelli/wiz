@@ -7,7 +7,7 @@ resource "aws_security_group" "public_ec2_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [local.management_ip_cidr]
+    cidr_blocks = [var.management_ip_cidr]
     description = "SSH access from management IP"
   }
 
@@ -60,7 +60,7 @@ resource "aws_security_group" "db_vm_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [local.management_ip_cidr]
+    cidr_blocks = [var.management_ip_cidr]
     description = "SSH access from management IP"
   }
 
