@@ -71,6 +71,10 @@ jobs:
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: refresh
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: terraform refresh
+
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
@@ -80,10 +84,7 @@ jobs:
             -var="key_name=${{ secrets.AWS_SSH_KEY_NAME }}" \
             -var="db_password=${{ secrets.AWS_DB_PASSWORD }}" \
             -var="bucket_name=${{ secrets.AWS_S3_BUCKET_NAME }}" \
-            -var="management_ip_cidr=${{ secrets.AWS_MANAGEMENT_IP_CIDR }}" \
-            -var="node_group_min_size=3" \
-            -var="node_group_max_size=3" \
-            -var="node_group_desired_size=3"
+            -var="management_ip_cidr=${{ secrets.AWS_MANAGEMENT_IP_CIDR }}"
 
       - name: apply
         working-directory: ${{ vars.TF_WORKING_DIR }}
