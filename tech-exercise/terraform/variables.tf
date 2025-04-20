@@ -52,22 +52,10 @@ variable "node_volume_size" {
   default     = 50
 }
 
-variable "node_group_min_size" {
+variable "nodes_per_az" {
   description = "Minimum size of the node group"
   type        = number
-  default     = 3
-}
-
-variable "node_group_max_size" {
-  description = "Maximum size of the node group"
-  type        = number
-  default     = 3
-}
-
-variable "node_group_desired_size" {
-  description = "Desired size of the node group"
-  type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "node_group_capacity_type" {

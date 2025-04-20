@@ -21,11 +21,9 @@ public_subnet_cidrs  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 cluster_name             = "tech-exercise"
 kubernetes_version       = "1.32"
 node_instance_type       = "t3.medium"
-node_group_capacity_type = "ON_DEMAND" # Can be "SPOT" or "ON_DEMAND"
+node_group_capacity_type = "ON_DEMAND" # ON_DEMAND or SPOT
 node_volume_size         = 50
-node_group_min_size      = 3
-node_group_max_size      = 3
-node_group_desired_size  = 3
+nodes_per_az             = 1 # How many nodes to deploy per availability zone
 
 tags = {
   Environment = "prod"
