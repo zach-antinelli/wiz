@@ -23,7 +23,7 @@ kubernetes_version       = "1.32"
 node_instance_type       = "t3.medium"
 node_group_capacity_type = "ON_DEMAND" # Can be "SPOT" or "ON_DEMAND"
 node_volume_size         = 50
-node_group_min_size      = 1
+node_group_min_size      = 3
 node_group_max_size      = 3
 node_group_desired_size  = 3
 
@@ -35,4 +35,5 @@ tags = {
 }
 
 management_ip_cidr = ""
+
 
