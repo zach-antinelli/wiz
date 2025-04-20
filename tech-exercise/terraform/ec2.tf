@@ -27,7 +27,12 @@ resource "aws_security_group" "db_vm_sg" {
     description = "Allow all outbound traffic"
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-db-vm-sg"
+    }
+  )
 }
 
 resource "aws_security_group" "app_sg" {
@@ -43,7 +48,12 @@ resource "aws_security_group" "app_sg" {
     description = "Allow all outbound traffic"
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-app-sg"
+    }
+  )
 }
 
 data "aws_ami" "ubuntu_2004" {

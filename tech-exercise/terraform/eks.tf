@@ -21,7 +21,12 @@ module "eks" {
 
   cluster_security_group_id   = aws_security_group.cluster_sg.id
   cluster_security_group_name = "${var.cluster_name}-cluster-sg"
-  cluster_security_group_tags = var.tags
+  cluster_security_group_tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-cluster-sg"
+    }
+  )
 
   cluster_enabled_log_types = [
     "api",
@@ -50,7 +55,12 @@ module "eks" {
 
       security_group_ids  = [aws_security_group.worker_sg.id]
       security_group_name = "${var.cluster_name}-worker-sg"
-      security_group_tags = var.tags
+      security_group_tags = merge(
+        var.tags,
+        {
+          Name = "${var.cluster_name}-worker-sg"
+        }
+      )
 
       create_iam_role = true
       iam_role_name   = "${var.cluster_name}-node-group-role"
@@ -105,9 +115,6 @@ module "eks_blueprints_addons" {
     coredns = {
       most_recent = true
     }
-    aws-ebs-csi-driver = {
-      most_recent = true
-    }
     eks-pod-identity-agent = {
       most_recent = true
     }
@@ -118,11 +125,15 @@ module "eks_blueprints_addons" {
       most_recent = true
       configuration_values = jsonencode({
         env = {
-          ENABLE_POD_ENI               = "true"
-          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"
-          ENABLE_PREFIX_DELEGATION     = "true"
+          ENABLE_POD_ENI                     = "true"
+          ENABLE_PREFIX_DELEGATION           = "true"
+          AWS_VPC_K8S_CNI_EXTERNALSNAT       = "true"
+          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
         }
       })
+    }
+    vpc-resource-controller = {
+      most_recent = true
     }
   }
 

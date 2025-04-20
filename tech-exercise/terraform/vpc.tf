@@ -96,7 +96,12 @@ resource "aws_security_group" "vpc_endpoints" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-vpc-endpoints-sg"
+    }
+  )
 }
 
 resource "aws_security_group" "cluster_sg" {
