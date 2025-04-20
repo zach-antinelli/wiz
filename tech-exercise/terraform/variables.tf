@@ -55,7 +55,7 @@ variable "node_volume_size" {
 variable "node_group_min_size" {
   description = "Minimum size of the node group"
   type        = number
-  default     = 1
+  default     = 3
 }
 
 variable "node_group_max_size" {
@@ -67,7 +67,7 @@ variable "node_group_max_size" {
 variable "node_group_desired_size" {
   description = "Desired size of the node group"
   type        = number
-  default     = 1
+  default     = 3
 }
 
 variable "node_group_capacity_type" {
