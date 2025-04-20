@@ -97,15 +97,19 @@ resource "aws_iam_policy" "security_groups_for_pods" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:AssignPrivateIpAddresses",
+          "ec2:AttachNetworkInterface",
           "ec2:CreateNetworkInterface",
-          "ec2:DeleteNetworkInterface",
-          "ec2:DetachNetworkInterface",
-          "ec2:ModifyNetworkInterfaceAttribute",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DescribeSecurityGroups",
           "ec2:CreateTags",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeInstances",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeTags",
           "ec2:DescribeSubnets",
-          "ec2:DescribeVpcs"
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeVpcs",
+          "ec2:ModifyNetworkInterfaceAttribute",
+          "ec2:UnassignPrivateIpAddresses"
         ]
         Resource = "*"
       }
