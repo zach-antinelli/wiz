@@ -54,20 +54,17 @@ module "eks" {
         instance_types = ["m5.large"]
         capacity_type  = var.node_group_capacity_type
 
-        subnet_ids = [module.vpc.private_subnets[index(["2a", "2b", "2c"], az_suffix)]]
+        subnet_ids         = [module.vpc.private_subnets[index(["2a", "2b", "2c"], az_suffix)]]
+        security_group_ids = [aws_security_group.worker_sg.id]
+
+        tags = var.tags
 
         additional_tags = {
           "k8s.amazonaws.com/eniConfig" = "us-west-${az_suffix}"
         }
 
-        security_group_ids  = [aws_security_group.worker_sg.id]
-        security_group_name = "${var.cluster_name}-worker-sg"
-        security_group_tags = merge(
-          var.tags,
-          {
-            Name = "${var.cluster_name}-worker-sg"
-          }
-        )
+        create_launch_template = true
+        launch_template_name   = "${var.cluster_name}-node-lt-us-west-${az_suffix}"
 
         create_iam_role = true
         iam_role_name   = "${var.cluster_name}-ng-role-${az_suffix}"
@@ -80,9 +77,6 @@ module "eks" {
           AmazonSSMManagedInstanceCore       = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
           SecurityGroupForPodsPolicy         = aws_iam_policy.security_groups_for_pods.arn
         }
-
-        create_launch_template = true
-        launch_template_name   = "${var.cluster_name}-node-lt-us-west-${az_suffix}"
 
         block_device_mappings = {
           xvda = {
