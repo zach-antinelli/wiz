@@ -4,9 +4,9 @@ set -uo pipefail
 
 # Defaults
 ENV_FILE=".env"
-IMAGE="gensen"
-PORT="8080"
-TAG="latest"
+IMAGE="688567300039.dkr.ecr.us-west-2.amazonaws.com/gensen"
+PORT="80"
+TAG="94c335b054bfa2000762411a0a7cbe91cbeef610"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -19,7 +19,7 @@ while [[ "$#" -gt 0 ]]; do
     shift 2
     ;;
   -p | --port)
-    PORT="${2:-8080}"
+    PORT="${2:-80}"
     shift 2
     ;;
   -t | --tag)
@@ -35,19 +35,18 @@ done
 
 if docker ps -a --format '{{.Names}}' | grep -q "^${IMAGE}$"; then
   echo "Stopping existing container..."
-  docker stop "${IMAGE}" || true
-  docker rm "${IMAGE}" || true
+  docker rm -f gensen || true
 fi
 
 echo "Starting container..."
 docker run \
   --detach \
-  --name "${IMAGE}" \
+  --name "gensen" \
   --env-file "$ENV_FILE" \
   --restart unless-stopped \
   --log-opt max-size=10m \
   --log-opt max-file=3 \
-  -p "${PORT}:${PORT}" \
+  -p "${PORT}:8080" \
   "${IMAGE}:${TAG}"
 
 DOCKER_EXIT_CODE=$?
