@@ -17,12 +17,12 @@ module "vpc" {
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/role/elb"                    = 1
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"           = "1"
+    "kubernetes.io/role/internal-elb"           = 1
   }
 
   tags = var.tags
@@ -32,8 +32,7 @@ module "vpc_endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
   version = "~> 5.0"
 
-  vpc_id = module.vpc.vpc_id
-
+  vpc_id             = module.vpc.vpc_id
   security_group_ids = [aws_security_group.vpc_endpoints.id]
 
   endpoints = {

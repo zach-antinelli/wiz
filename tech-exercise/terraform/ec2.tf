@@ -1,56 +1,3 @@
-resource "aws_security_group" "public_ec2_sg" {
-  name        = "${var.cluster_name}-public-ec2-sg"
-  description = "Security group for public EC2 instance"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.management_ip_cidr]
-    description = "SSH access from management IP"
-  }
-
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.worker_sg.id]
-    description     = "MySQL access from K8s worker nodes"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = var.tags
-}
-
-resource "aws_security_group" "app_sg" {
-  name        = "${var.cluster_name}-app-sg"
-  description = "Security group for application pods in Kubernetes"
-  vpc_id      = module.vpc.vpc_id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.cluster_name}-app-sg"
-    }
-  )
-}
-
 resource "aws_security_group" "db_vm_sg" {
   name        = "${var.cluster_name}-db-vm-sg"
   description = "Security group for database VM instance"
@@ -71,6 +18,22 @@ resource "aws_security_group" "db_vm_sg" {
     security_groups = [aws_security_group.app_sg.id]
     description     = "MySQL access from EKS application pods"
   }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = var.tags
+}
+
+resource "aws_security_group" "app_sg" {
+  name        = "${var.cluster_name}-app-sg"
+  description = "Security group for application pods in Kubernetes"
+  vpc_id      = module.vpc.vpc_id
 
   egress {
     from_port   = 0

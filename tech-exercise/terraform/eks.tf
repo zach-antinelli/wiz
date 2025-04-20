@@ -32,6 +32,11 @@ module "eks" {
   ]
   cloudwatch_log_group_retention_in_days = 7
 
+  enable_irsa                              = true
+  enable_cluster_creator_admin_permissions = true
+  enable_security_groups_for_pods          = true
+  authentication_mode                      = "API_AND_CONFIG_MAP"
+
   eks_managed_node_groups = {
     "${var.cluster_name}-node-group" = {
       ami_type       = "AL2023_x86_64_STANDARD"
@@ -84,10 +89,6 @@ module "eks" {
     }
   }
 
-  enable_irsa                              = true
-  enable_cluster_creator_admin_permissions = true
-  authentication_mode                      = "API_AND_CONFIG_MAP"
-
   tags = var.tags
 }
 
@@ -120,8 +121,6 @@ module "eks_blueprints_addons" {
           ENABLE_POD_ENI               = "true"
           AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"
           ENABLE_PREFIX_DELEGATION     = "true"
-          ENABLE_NETWORK_POLICY        = "true"
-          ENABLE_POD_SECURITY_GROUPS   = "true"
         }
       })
     }
