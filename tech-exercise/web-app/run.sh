@@ -6,7 +6,7 @@ set -uo pipefail
 ENV_FILE=".env"
 IMAGE="688567300039.dkr.ecr.us-west-2.amazonaws.com/gensen"
 PORT="80"
-TAG="94c335b054bfa2000762411a0a7cbe91cbeef610"
+TAG="df8f0d873b9076ad0cbbb943f85a5e7fb917dceb"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -33,7 +33,7 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 
-if docker ps -a --format '{{.Names}}' | grep -q "^${IMAGE}$"; then
+if docker ps -a --format '{{.Names}}' | grep -q "^gensen$"; then
   echo "Stopping existing container..."
   docker rm -f gensen || true
 fi

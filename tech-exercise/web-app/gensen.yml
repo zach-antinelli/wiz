@@ -1,0 +1,104 @@
+# ENIConfig CR for us-west-2a
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2a
+spec:
+  subnet: subnet-004334dbc180cd055
+  securityGroups:
+    - sg-0e5aafe417c93b626
+
+# ENIConfig CR for us-west-2b
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2b
+spec:
+  subnet: subnet-0f5d7dd265e46c8af
+  securityGroups:
+    - sg-0e5aafe417c93b626
+
+# ENIConfig CR for us-west-2c
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2a
+spec:
+  subnet: subnet-0762ad1c9e0b988dc
+  securityGroups:
+    - sg-0e5aafe417c93b626
+
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gensen
+  labels:
+    app: gensen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gensen
+  template:
+    metadata:
+      annotations:
+        vpc.amazonaws.com/pod-eni: "true"
+        vpc.amazonaws.com/pod-eni-sg: "sg-0e5aafe417c93b626"
+      labels:
+        app: gensen
+    spec:
+      containers:
+        - name: gensen
+          image: 688567300039.dkr.ecr.us-west-2.amazonaws.com/gensen:df8f0d873b9076ad0cbbb943f85a5e7fb917dceb
+          ports:
+            - containerPort: 8080
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gensen
+  labels:
+    app: gensen
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: gensen
+  type: NodePort
+
+# Ingress with config for ALB creation and SSL
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gensen
+  labels:
+    app: gensen
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/subnets: subnet-004334dbc180cd055,subnet-0f5d7dd265e46c8af,subnet-0762ad1c9e0b988dc
+    alb.ingress.kubernetes.io/security-groups: sg-0e5aafe417c93b626
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:688567300039:certificate/87685d1b-deda-4053-b2de-d5e2271b3d06
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gensen
+                port:
+                  number: 80
