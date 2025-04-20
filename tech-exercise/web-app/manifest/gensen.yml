@@ -5,9 +5,9 @@ kind: ENIConfig
 metadata:
   name: us-west-2a
 spec:
-  subnet: subnet-004334dbc180cd055
+  subnet: ${subnet_id_us_west_2a}
   securityGroups:
-    - sg-0e5aafe417c93b626
+    - ${APP_SG_ID}
 
 # ENIConfig CR for us-west-2b
 ---
@@ -16,9 +16,9 @@ kind: ENIConfig
 metadata:
   name: us-west-2b
 spec:
-  subnet: subnet-0f5d7dd265e46c8af
+  subnet: ${subnet_id_us_west_2b}
   securityGroups:
-    - sg-0e5aafe417c93b626
+    - ${APP_SG_ID}
 
 # ENIConfig CR for us-west-2c
 ---
@@ -27,51 +27,51 @@ kind: ENIConfig
 metadata:
   name: us-west-2c
 spec:
-  subnet: subnet-0762ad1c9e0b988dc
+  subnet: ${subnet_id_us_west_2c}
   securityGroups:
-    - sg-0e5aafe417c93b626
+    - ${APP_SG_ID}
 
 # Deployment
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gensen
+  name: ${APP_NAME}
   labels:
-    app: gensen
+    app: ${APP_NAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gensen
+      app: ${APP_NAME}
   template:
     metadata:
       annotations:
         vpc.amazonaws.com/pod-eni: "true"
-        vpc.amazonaws.com/pod-eni-sg: "sg-0e5aafe417c93b626"
+        vpc.amazonaws.com/pod-eni-sg: "${APP_SG_ID}"
       labels:
-        app: gensen
+        app: ${APP_NAME}
     spec:
       containers:
-        - name: gensen
-          image: 688567300039.dkr.ecr.us-west-2.amazonaws.com/gensen:df8f0d873b9076ad0cbbb943f85a5e7fb917dceb
+        - name: ${APP_NAME}
+          image: ${APP_IMAGE}
           ports:
-            - containerPort: 8080
+            - containerPort: ${CONTAINER_PORT}
 
 # Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: gensen
+  name: ${APP_NAME}
   labels:
-    app: gensen
+    app: ${APP_NAME}
 spec:
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: ${CONTAINER_PORT}
   selector:
-    app: gensen
+    app: ${APP_NAME}
   type: NodePort
 
 # Ingress with config for ALB creation and SSL
@@ -79,17 +79,17 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: gensen
+  name: ${APP_NAME}
   labels:
-    app: gensen
+    app: ${APP_NAME}
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/subnets: subnet-004334dbc180cd055,subnet-0f5d7dd265e46c8af,subnet-0762ad1c9e0b988dc
-    alb.ingress.kubernetes.io/security-groups: sg-0e5aafe417c93b626
+    alb.ingress.kubernetes.io/subnets: ${subnet_id_us_west_2a},${subnet_id_us_west_2b},${subnet_id_us_west_2c}
+    alb.ingress.kubernetes.io/security-groups: ${APP_SG_ID}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:688567300039:certificate/87685d1b-deda-4053-b2de-d5e2271b3d06
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/certificate-arn: ${APP_CERT_ARN}
 spec:
   ingressClassName: alb
   rules:
@@ -99,6 +99,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: gensen
+                name: ${APP_NAME}
                 port:
                   number: 80

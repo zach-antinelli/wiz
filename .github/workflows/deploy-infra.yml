@@ -30,11 +30,11 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: ensure working directory exists
-        run: mkdir -p ${{ vars.TF_WORKING_DIR_INFRA }}
+        run: mkdir -p ${{ vars.TF_WORKING_DIR }}
 
       - name: check state
         id: check-state
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
             REPO="${{ github.repository }}"
             TOKEN="${{ secrets.GH_ACCESS_TOKEN }}"
@@ -54,24 +54,24 @@ jobs:
         with:
           operation: download
           location: artifact
-          directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+          directory: ${{ vars.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
           encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}
 
       - name: init
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform init
 
       - name: format
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform fmt
 
       - name: validate
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
       - name: plan
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
           terraform plan -out=tfplan \
             -var="app_name=${{ vars.APP_NAME }}" \
@@ -82,7 +82,7 @@ jobs:
             -var="management_ip_cidr=${{ secrets.AWS_MANAGEMENT_IP_CIDR }}"
 
       - name: apply
-        working-directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+        working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
 
       - name: upload state
@@ -91,7 +91,6 @@ jobs:
         with:
           operation: upload
           location: artifact
-          name: Terraform State
-          directory: ${{ vars.TF_WORKING_DIR_INFRA }}
+          directory: ${{ vars.TF_WORKING_DIR }}
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
           encryption_key: ${{ secrets.TF_STATE_ENCRYPTION_KEY }}

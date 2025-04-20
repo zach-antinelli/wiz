@@ -2,6 +2,7 @@
 .test/
 *.internal.*
 *.test
+**/deploy.sh
 
 ## MAC ##
 # General
