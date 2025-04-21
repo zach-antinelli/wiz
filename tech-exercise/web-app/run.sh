@@ -4,9 +4,9 @@ set -uo pipefail
 
 # Defaults
 ENV_FILE=".env"
-IMAGE="688567300039.dkr.ecr.us-west-2.amazonaws.com/gensen"
-PORT="80"
-TAG="df8f0d873b9076ad0cbbb943f85a5e7fb917dceb"
+IMAGE="gensen"
+PORT="8080"
+TAG="latest"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -19,7 +19,7 @@ while [[ "$#" -gt 0 ]]; do
     shift 2
     ;;
   -p | --port)
-    PORT="${2:-80}"
+    PORT="${2:-8080}"
     shift 2
     ;;
   -t | --tag)

@@ -23,8 +23,8 @@
             border-radius: 12px;
             box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            width: 80vw;
-            height: 80vh;
+            width: 85vw;
+            height: 85vh;
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
@@ -56,10 +56,28 @@
             user-select: none;
         }
 
+        .login-prompt-symbol {
+            color: #64b4ff;
+            margin-right: 10px;
+            user-select: none;
+        }
+
         .command-input {
             background: transparent;
             border: none;
             color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            outline: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .password-input {
+            background: transparent;
+            border: none;
+            color: #ff64b4;
             font-family: inherit;
             font-size: inherit;
             width: 100%;
@@ -123,69 +141,187 @@
         <div class="terminal-body" id="terminal-body">
             <div class="output">╔═════════════════════════╗
 ║    gensen           v1.0
-╚═════════════════════════╝
-
-Enter your query or 'help'</div>
-            <div class="prompt">
-                <span class="prompt-symbol">>&nbsp;</span>
-                <input type="text" class="command-input" id="command-input" autofocus>
-            </div>
+╚═════════════════════════╝</div>
         </div>
     </div>
 
     <script>
         const terminalBody = document.getElementById('terminal-body');
+        let isAuthenticated = false;
+        let username = '';
+        let isEnteringPassword = false;
+
+        function checkAuthentication() {
+            const cookies = document.cookie.split('; ');
+            return cookies.some(cookie => cookie.startsWith('access_token='));
+        }
+
+        function initializeTerminal() {
+            if (checkAuthentication()) {
+                isAuthenticated = true;
+                addCommandPrompt();
+            } else {
+                addLoginPrompt();
+            }
+        }
+
+        function addOutput(message) {
+            const output = document.createElement('div');
+            output.className = 'output';
+            output.textContent = message;
+            terminalBody.appendChild(output);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function addCommandPrompt() {
+            const prompt = document.createElement('div');
+            prompt.className = 'prompt';
+            prompt.innerHTML = `
+                <span class="prompt-symbol">>&nbsp;</span>
+                <input type="text" class="command-input">
+            `;
+            terminalBody.appendChild(prompt);
+            const input = prompt.querySelector('input');
+            initializeInput(input);
+            input.focus();
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function addLoginPrompt() {
+            const prompt = document.createElement('div');
+            prompt.className = 'prompt';
+            prompt.innerHTML = `
+                <span class="login-prompt-symbol">username:&nbsp;</span>
+                <input type="text" class="command-input">
+            `;
+            terminalBody.appendChild(prompt);
+            const input = prompt.querySelector('input');
+            input.addEventListener('keydown', handleLoginInput);
+            input.focus();
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function addPasswordPrompt() {
+            const prompt = document.createElement('div');
+            prompt.className = 'prompt';
+            prompt.innerHTML = `
+                <span class="login-prompt-symbol">password:&nbsp;</span>
+                <input type="password" class="password-input">
+            `;
+            terminalBody.appendChild(prompt);
+            const input = prompt.querySelector('input');
+            input.addEventListener('keydown', handlePasswordInput);
+            input.focus();
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+            isEnteringPassword = true;
+        }
+
+        async function handleLoginInput(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                username = this.value;
+                this.disabled = true;
+                addPasswordPrompt();
+            }
+        }
+
+        async function handlePasswordInput(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const password = this.value;
+                this.disabled = true;
+                isEnteringPassword = false;
+                await attemptLogin(username, password);
+            }
+        }
+
+        async function attemptLogin(username, password) {
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await fetch('/auth', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    isAuthenticated = true;
+                    clearScreen(true);
+                    addCommandPrompt();
+                } else {
+                    clearScreen(false);
+                    addOutput('Authentication failed. Please try again.');
+                    username = '';
+                    addLoginPrompt();
+                }
+            } catch (error) {
+                clearScreen(false);
+                addOutput(`Error: ${error.message}`);
+                username = '';
+                addLoginPrompt();
+            }
+        }
 
         terminalBody.addEventListener('click', function(e) {
-            const activeInput = terminalBody.querySelector('.prompt:last-child .command-input');
-            if (activeInput) {
+            const activeInput = terminalBody.querySelector('.prompt:last-child input');
+            if (activeInput && !activeInput.disabled) {
                 activeInput.focus();
             }
         });
 
-        window.addEventListener('resize', function() {
-            terminalBody.scrollTop = terminalBody.scrollHeight;
-        });
+        function clearScreen(showWelcome = true) {
+            while (terminalBody.firstChild) {
+                terminalBody.removeChild(terminalBody.firstChild);
+            }
 
-        function addNewPrompt() {
-            const newPrompt = document.createElement('div');
-            newPrompt.className = 'prompt';
-            newPrompt.innerHTML = `
-                <span class="prompt-symbol">>&nbsp;</span>
-                <input type="text" class="command-input">
-            `;
-            terminalBody.appendChild(newPrompt);
-            const newInput = newPrompt.querySelector('input');
-            initializeInput(newInput);
-            newInput.focus();
-            terminalBody.scrollTop = terminalBody.scrollHeight;
+            if (showWelcome) {
+                const welcomeMsg = document.createElement('div');
+                welcomeMsg.className = 'output';
+                welcomeMsg.innerHTML = `╔═════════════════════════╗
+║    gensen          v1.0 ║
+╚═════════════════════════╝
+
+Enter your query or 'help'`;
+                terminalBody.appendChild(welcomeMsg);
+            }
         }
 
         async function executeCommand(command) {
+            if (!isAuthenticated) {
+                if (!isEnteringPassword) {
+                    addLoginPrompt();
+                }
+                return null;
+            }
+
             try {
+
                 const response = await fetch('/execute', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ command })
+                    body: JSON.stringify({ command }),
+                    credentials: 'same-origin'
                 });
+
+                if (response.status === 401) {
+                    isAuthenticated = false;
+                    clearScreen(false);
+                    addOutput('Session expired. Please login again.');
+                    username = '';
+                    addLoginPrompt();
+                    return null;
+                }
 
                 const data = await response.json();
 
                 if (data.output === 'CLEAR_SCREEN') {
-                    while (terminalBody.firstChild) {
-                        terminalBody.removeChild(terminalBody.firstChild);
-                    }
-                    const welcomeMsg = document.createElement('div');
-                    welcomeMsg.className = 'output';
-                    welcomeMsg.innerHTML = `╔═════════════════════════╗
-║    gensen           v1.0
-╚═════════════════════════╝
-
-Enter your query or 'help'`;
-                    terminalBody.appendChild(welcomeMsg);
-                    addNewPrompt();
+                    clearScreen(true);
+                    addCommandPrompt();
                     return null;
                 }
 
@@ -196,20 +332,30 @@ Enter your query or 'help'`;
         }
 
         async function processCommand(command) {
+            if (!isAuthenticated && !isEnteringPassword) {
+                return;
+            }
+
             const currentPrompt = document.createElement('div');
             currentPrompt.className = 'prompt';
-            currentPrompt.innerHTML = `
-                <span class="prompt-symbol">>&nbsp;</span>
-                <input type="text" class="command-input" readonly>
-            `;
 
-            const readOnlyInput = currentPrompt.querySelector('input');
-            readOnlyInput.value = command;
+            if (isEnteringPassword) {
+                currentPrompt.innerHTML = `
+                    <span class="login-prompt-symbol">password:&nbsp;</span>
+                    <input type="password" class="password-input" disabled value="********">
+                `;
+            } else {
+                currentPrompt.innerHTML = `
+                    <span class="prompt-symbol">>&nbsp;</span>
+                    <input type="text" class="command-input" disabled>
+                `;
+                currentPrompt.querySelector('input').value = command;
+            }
 
             const activePrompt = terminalBody.querySelector('.prompt:last-child');
             activePrompt.replaceWith(currentPrompt);
 
-            if (command.trim()) {
+            if (command.trim() && !isEnteringPassword) {
                 const output = await executeCommand(command);
                 if (output === null) {
                     return;
@@ -220,9 +366,11 @@ Enter your query or 'help'`;
                     outputElement.textContent = output;
                     terminalBody.appendChild(outputElement);
                 }
-            }
 
-            addNewPrompt();
+                if (isAuthenticated) {
+                    addCommandPrompt();
+                }
+            }
         }
 
         function initializeInput(input) {
@@ -235,7 +383,7 @@ Enter your query or 'help'`;
             });
         }
 
-        initializeInput(document.querySelector('.command-input'));
+        document.addEventListener('DOMContentLoaded', initializeTerminal);
     </script>
 </body>
 </html>

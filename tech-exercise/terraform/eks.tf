@@ -59,8 +59,8 @@ module "eks" {
 
         tags = var.tags
 
-        additional_tags = {
-          "k8s.amazonaws.com/eniConfig" = "us-west-${az_suffix}"
+        labels = {
+          "node.k8s.amazonaws.com/eniConfig" = "us-west-${az_suffix}"
         }
 
         create_launch_template = true
@@ -142,4 +142,49 @@ module "eks_blueprints_addons" {
   }
 
   tags = var.tags
+}
+
+resource "kubectl_manifest" "eniconfig_2a" {
+  yaml_body = <<-YAML
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2a
+spec:
+  securityGroups:
+    - ${aws_security_group.worker_sg.id}
+  subnet: ${module.vpc.private_subnets[0]}
+YAML
+
+  depends_on = [module.eks]
+}
+
+resource "kubectl_manifest" "eniconfig_2b" {
+  yaml_body = <<-YAML
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2b
+spec:
+  securityGroups:
+    - ${aws_security_group.worker_sg.id}
+  subnet: ${module.vpc.private_subnets[1]}
+YAML
+
+  depends_on = [module.eks]
+}
+
+resource "kubectl_manifest" "eniconfig_2c" {
+  yaml_body = <<-YAML
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: us-west-2c
+spec:
+  securityGroups:
+    - ${aws_security_group.worker_sg.id}
+  subnet: ${module.vpc.private_subnets[2]}
+YAML
+
+  depends_on = [module.eks]
 }
