@@ -25,19 +25,26 @@ logger = logging.getLogger(__name__)
 
 GENSEN_USER = getenv("GENSEN_USER")
 GENSEN_PW = getenv("GENSEN_PW")
+MYSQL_HOST = getenv("MYSQL_HOST")
+MYSQL_DB = getenv("MYSQL_DB")
+MYSQL_USER = getenv("MYSQL_USER")
+MYSQL_PW = getenv("MYSQL_PW")
 SECRET_KEY = urandom(64).hex()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 if not GENSEN_USER:
-    msg = "GENSEN_USER environment variable is not set"
-    logger.error(msg)
-    raise ValueError(msg)
-
+    raise ValueError("GENSEN_USER environment variable is not set")
 if not GENSEN_PW:
-    msg = "GENSEN_PW environment variable is not set"
-    logger.error(msg)
-    raise ValueError(msg)
+    raise ValueError("GENSEN_PW environment variable is not set")
+if not MYSQL_HOST:
+    raise ValueError("MYSQL_HOST environment variable is not set")
+if not MYSQL_DB:
+    raise ValueError("MYSQL_DB environment variable is not set")
+if not MYSQL_USER:
+    raise ValueError("MYSQL_USER environment variable is not set")
+if not MYSQL_PW:
+    raise ValueError("MYSQL_PW environment variable is not set")
 
 app = FastAPI(title="GenAI Sentry")
 templates = Jinja2Templates(directory="templates")
@@ -112,10 +119,10 @@ class MySQLDB:
 
     def __init__(self) -> None:
         """Initialize environment variables for DB connection."""
-        self.host = getenv("MYSQL_HOST")
-        self.user = getenv("MYSQL_USER")
-        self.password = getenv("MYSQL_PASSWORD")
-        self.database = getenv("MYSQL_DATABASE")
+        self.host = MYSQL_HOST
+        self.user = MYSQL_USER
+        self.password = MYSQL_PW
+        self.database = MYSQL_DB
         self.connection = None
 
     def connect(self) -> None:
