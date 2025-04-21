@@ -48,7 +48,7 @@ module "eks" {
       min_size      = var.node_group_min_size
       max_size      = var.node_group_max_size
       desired_size  = var.node_group_desired_size
-      instance_type = "m5.large"
+      instance_type = var.node_group_instance_type
       capacity_type = var.node_group_capacity_type
 
       subnet_ids         = module.vpc.private_subnets
@@ -73,7 +73,7 @@ module "eks" {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
-            volume_size           = var.node_volume_size
+            volume_size           = var.node_group_volume_size
             volume_type           = "gp3"
             encrypted             = false
             delete_on_termination = true
@@ -132,4 +132,5 @@ module "eks_blueprints_addons" {
 
   tags = var.tags
 }
+
 

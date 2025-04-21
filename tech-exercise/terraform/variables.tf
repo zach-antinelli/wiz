@@ -58,10 +58,16 @@ variable "node_group_desired_size" {
   default     = 3
 }
 
-variable "node_volume_size" {
+variable "node_group_volume_size" {
   description = "Size of the node EBS volume"
   type        = number
   default     = 50
+}
+
+variable "node_group_instance_type" {
+  description = "Instance type for the node group"
+  type        = number
+  default     = "m5.large"
 }
 
 

@@ -174,7 +174,7 @@ resource "aws_instance" "db_vm" {
   }
 
   root_block_device {
-    volume_size           = var.node_volume_size
+    volume_size           = var.node_group_volume_size
     volume_type           = "gp3"
     delete_on_termination = true
   }
