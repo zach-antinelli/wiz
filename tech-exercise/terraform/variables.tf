@@ -40,6 +40,12 @@ variable "public_subnet_cidrs" {
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
+variable "node_group_capacity_type" {
+  description = "Capacity type for the node group"
+  type        = string
+  default     = "ON_DEMAND"
+}
+
 variable "node_group_min_size" {
   description = "Minimum size of the node group"
   type        = number
@@ -58,11 +64,6 @@ variable "node_group_desired_size" {
   default     = 3
 }
 
-variable "node_group_volume_size" {
-  description = "Size of the node EBS volume"
-  type        = number
-  default     = 50
-}
 
 variable "node_group_instance_type" {
   description = "Instance type for the node group"
@@ -70,11 +71,10 @@ variable "node_group_instance_type" {
   default     = "m5.large"
 }
 
-
-variable "node_group_capacity_type" {
-  description = "Capacity type for the node group"
-  type        = string
-  default     = "ON_DEMAND"
+variable "node_group_volume_size" {
+  description = "Size of the node EBS volume"
+  type        = number
+  default     = 50
 }
 
 variable "tags" {
