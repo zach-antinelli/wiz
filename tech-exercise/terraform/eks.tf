@@ -42,63 +42,53 @@ module "eks" {
   enable_security_groups_for_pods          = true
   authentication_mode                      = "API_AND_CONFIG_MAP"
 
-  # Generating a node group per AZ
-  eks_managed_node_groups = merge(
-    {
-      for az_suffix in ["2a", "2b", "2c"] :
-      "${var.cluster_name}-node-group-${az_suffix}" => {
-        ami_type       = "AL2023_x86_64_STANDARD"
-        min_size       = var.nodes_per_az
-        max_size       = var.nodes_per_az
-        desired_size   = var.nodes_per_az
-        instance_types = ["m5.large"]
-        capacity_type  = var.node_group_capacity_type
+  eks_managed_node_groups = {
+    "${var.cluster_name}-node-group" = {
+      ami_type      = "AL2023_x86_64_STANDARD"
+      min_size      = var.node_group_min_size
+      max_size      = var.node_group_max_size
+      desired_size  = var.node_group_desired_size
+      instance_type = "m5.large"
+      capacity_type = var.node_group_capacity_type
 
-        subnet_ids         = [module.vpc.private_subnets[index(["2a", "2b", "2c"], az_suffix)]]
-        security_group_ids = [aws_security_group.worker_sg.id]
+      subnet_ids         = module.vpc.private_subnets
+      security_group_ids = [aws_security_group.worker_sg.id]
 
-        tags = var.tags
+      tags = var.tags
 
-        labels = {
-          "node.k8s.amazonaws.com/eniConfig" = "us-west-${az_suffix}"
-        }
+      create_launch_template = true
+      launch_template_name   = "${var.cluster_name}-node-launch-template"
 
-        create_launch_template = true
-        launch_template_name   = "${var.cluster_name}-node-lt-us-west-${az_suffix}"
+      create_iam_role = true
+      iam_role_name   = "${var.cluster_name}-node-role"
 
-        create_iam_role = true
-        iam_role_name   = "${var.cluster_name}-ng-role-${az_suffix}"
+      iam_role_additional_policies = {
+        AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        AmazonSSMManagedInstanceCore       = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
 
-        iam_role_additional_policies = {
-          AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-          AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-          AmazonEBSCSIDriverPolicy           = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-          AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-          AmazonSSMManagedInstanceCore       = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-          SecurityGroupForPodsPolicy         = aws_iam_policy.security_groups_for_pods.arn
-        }
-
-        block_device_mappings = {
-          xvda = {
-            device_name = "/dev/xvda"
-            ebs = {
-              volume_size           = var.node_volume_size
-              volume_type           = "gp3"
-              encrypted             = false
-              delete_on_termination = true
-            }
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = var.node_volume_size
+            volume_type           = "gp3"
+            encrypted             = false
+            delete_on_termination = true
           }
         }
+      }
 
-        metadata_options = {
-          http_endpoint               = "enabled"
-          http_tokens                 = "required"
-          http_put_response_hop_limit = 2
-          instance_metadata_tags      = "enabled"
-        }
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = 2
+        instance_metadata_tags      = "enabled"
       }
     }
-  )
+  }
 
   tags = var.tags
 }
@@ -111,6 +101,13 @@ module "eks_blueprints_addons" {
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
+
+  enable_aws_load_balancer_controller = true
+
+  aws_load_balancer_controller = {
+    cluster_name             = module.eks.cluster_name
+    service_account_role_arn = aws_iam_role.load_balancer_controller_role.arn
+  }
 
   eks_addons = {
     coredns = {
@@ -126,65 +123,45 @@ module "eks_blueprints_addons" {
       most_recent = true
       configuration_values = jsonencode({
         env = {
-          ENABLE_POD_ENI                     = "true"
-          ENABLE_PREFIX_DELEGATION           = "true"
-          AWS_VPC_K8S_CNI_EXTERNALSNAT       = "true"
-          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
+          ENABLE_POD_ENI           = "true"
+          ENABLE_PREFIX_DELEGATION = "true"
         }
       })
     }
   }
 
-  enable_aws_load_balancer_controller = true
-  aws_load_balancer_controller = {
-    cluster_name             = module.eks.cluster_name
-    service_account_role_arn = aws_iam_role.load_balancer_controller_role.arn
-  }
-
   tags = var.tags
 }
 
-resource "kubectl_manifest" "eniconfig_2a" {
-  yaml_body = <<-YAML
-apiVersion: crd.k8s.amazonaws.com/v1alpha1
-kind: ENIConfig
-metadata:
-  name: us-west-2a
-spec:
-  securityGroups:
-    - ${aws_security_group.worker_sg.id}
-  subnet: ${module.vpc.private_subnets[0]}
-YAML
+#resource "kubectl_manifest" "namespace" {
+#  yaml_body = <<-YAML
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  name: ${var.app_name}-ns
+#  labels:
+#    name: ${var.app_name}-ns
+#YAML
+#
+#  depends_on = [module.eks_blueprints_addons]
+#}
+#
+#resource "kubectl_manifest" "security_group_policy" {
+#  yaml_body = <<-YAML
+#apiVersion: vpcresources.k8s.aws/v1beta1
+#kind: SecurityGroupPolicy
+#metadata:
+#  name: ${var.app_name}
+#  namespace: default
+#spec:
+#  podSelector:
+#    matchLabels:
+#      app: ${var.app_name}
+#  securityGroups:
+#    groupIds:
+#      - ${aws_security_group.app_sg.id}
+#YAML
+#
+#  depends_on = [kubectl_manifest.namespace, module.eks_blueprints_addons]
+#}
 
-  depends_on = [module.eks]
-}
-
-resource "kubectl_manifest" "eniconfig_2b" {
-  yaml_body = <<-YAML
-apiVersion: crd.k8s.amazonaws.com/v1alpha1
-kind: ENIConfig
-metadata:
-  name: us-west-2b
-spec:
-  securityGroups:
-    - ${aws_security_group.worker_sg.id}
-  subnet: ${module.vpc.private_subnets[1]}
-YAML
-
-  depends_on = [module.eks]
-}
-
-resource "kubectl_manifest" "eniconfig_2c" {
-  yaml_body = <<-YAML
-apiVersion: crd.k8s.amazonaws.com/v1alpha1
-kind: ENIConfig
-metadata:
-  name: us-west-2c
-spec:
-  securityGroups:
-    - ${aws_security_group.worker_sg.id}
-  subnet: ${module.vpc.private_subnets[2]}
-YAML
-
-  depends_on = [module.eks]
-}

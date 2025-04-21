@@ -39,6 +39,24 @@ variable "public_subnet_cidrs" {
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
+variable "node_group_min_size" {
+  description = "Minimum size of the node group"
+  type        = number
+  default     = 3
+}
+
+variable "node_group_max_size" {
+  description = "Max size of the node group"
+  type        = number
+  default     = 3
+}
+
+variable "node_group_desired_size" {
+  description = "Desired size of the node group"
+  type        = number
+  default     = 3
+}
+
 variable "node_instance_type" {
   description = "EC2 instance type for EKS nodes"
   type        = string
@@ -52,11 +70,6 @@ variable "node_volume_size" {
   default     = 50
 }
 
-variable "nodes_per_az" {
-  description = "Minimum size of the node group"
-  type        = number
-  default     = 1
-}
 
 variable "node_group_capacity_type" {
   description = "Capacity type for the node group"

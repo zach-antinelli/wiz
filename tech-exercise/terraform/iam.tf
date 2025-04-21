@@ -86,33 +86,3 @@ resource "aws_iam_instance_profile" "db_vm_instance_profile" {
   name = "${var.cluster_name}-db-vm-instance-profile"
   role = aws_iam_role.db_vm_instance_role.name
 }
-
-resource "aws_iam_policy" "security_groups_for_pods" {
-  name        = "${var.cluster_name}-sg-for-pods"
-  description = "IAM policy allowing EKS to manage security groups for pods"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ec2:AssignPrivateIpAddresses",
-          "ec2:AttachNetworkInterface",
-          "ec2:CreateNetworkInterface",
-          "ec2:CreateTags",
-          "ec2:DeleteNetworkInterface",
-          "ec2:DescribeInstances",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DescribeTags",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeVpcs",
-          "ec2:ModifyNetworkInterfaceAttribute",
-          "ec2:UnassignPrivateIpAddresses"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
