@@ -23,28 +23,31 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+ANTHROPIC_API_KEY = getenv("ANTHROPIC_API_KEY")
+if not ANTHROPIC_API_KEY:
+    raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 GENSEN_USER = getenv("GENSEN_USER")
+if not GENSEN_USER:
+    raise ValueError("GENSEN_USER environment variable is not set")
 GENSEN_PW = getenv("GENSEN_PW")
+if not GENSEN_PW:
+    raise ValueError("GENSEN_PW environment variable is not set")
 MYSQL_HOST = getenv("MYSQL_HOST")
+if not MYSQL_HOST:
+    raise ValueError("MYSQL_HOST environment variable is not set")
 MYSQL_DB = getenv("MYSQL_DB")
+if not MYSQL_DB:
+    raise ValueError("MYSQL_DB environment variable is not set")
 MYSQL_USER = getenv("MYSQL_USER")
+if not MYSQL_USER:
+    raise ValueError("MYSQL_USER environment variable is not set")
 MYSQL_PW = getenv("MYSQL_PW")
+if not MYSQL_PW:
+    raise ValueError("MYSQL_PW environment variable is not set")
+
 SECRET_KEY = urandom(64).hex()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-if not GENSEN_USER:
-    raise ValueError("GENSEN_USER environment variable is not set")
-if not GENSEN_PW:
-    raise ValueError("GENSEN_PW environment variable is not set")
-if not MYSQL_HOST:
-    raise ValueError("MYSQL_HOST environment variable is not set")
-if not MYSQL_DB:
-    raise ValueError("MYSQL_DB environment variable is not set")
-if not MYSQL_USER:
-    raise ValueError("MYSQL_USER environment variable is not set")
-if not MYSQL_PW:
-    raise ValueError("MYSQL_PW environment variable is not set")
 
 app = FastAPI(title="GenAI Sentry")
 templates = Jinja2Templates(directory="templates")

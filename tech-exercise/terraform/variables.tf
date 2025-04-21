@@ -101,11 +101,13 @@ variable "bucket_name" {
 variable "key_name" {
   description = "SSH Key pair for DB VM"
   type        = string
+  sensitive   = true
 }
 
 variable "db_password" {
   description = "Password for DB"
   type        = string
+  sensitive   = true
 }
 
 variable "app_name" {
@@ -116,4 +118,5 @@ variable "app_name" {
 variable "management_ip_cidr" {
   description = "CIDR block for management IP"
   type        = string
+  sensitive   = true
 }
