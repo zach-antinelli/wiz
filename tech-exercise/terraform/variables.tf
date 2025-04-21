@@ -113,6 +113,7 @@ variable "db_password" {
 variable "app_name" {
   description = "Web app name"
   type        = string
+  sensitive   = true
 }
 
 variable "management_ip_cidr" {
