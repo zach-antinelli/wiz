@@ -19,8 +19,8 @@ module "eks" {
   cluster_endpoint_public_access       = true
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0", var.management_ip_cidr]
 
-  cluster_security_group_id     = aws_security_group.cluster_sg.id
-  create_cluster_security_group = false
+  create_cluster_security_group = true
+  cluster_security_group_name   = "${var.cluster_name}-cluster-sg"
 
   cluster_enabled_log_types = [
     "api",

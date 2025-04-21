@@ -104,27 +104,6 @@ resource "aws_security_group" "vpc_endpoints" {
   )
 }
 
-resource "aws_security_group" "cluster_sg" {
-  name        = "${var.cluster_name}-cluster-sg"
-  description = "Security group for EKS cluster control plane"
-  vpc_id      = module.vpc.vpc_id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.cluster_name}-cluster-sg"
-    }
-  )
-}
-
 resource "aws_security_group" "worker_sg" {
   name        = "${var.cluster_name}-worker-sg"
   description = "Security group for EKS worker nodes"
@@ -246,7 +225,7 @@ resource "aws_security_group_rule" "cluster_from_worker" {
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.cluster_sg.id
+  security_group_id        = module.eks.cluster_security_group_id
   source_security_group_id = aws_security_group.worker_sg.id
   description              = "Allow traffic from worker nodes to cluster control plane"
 }
@@ -257,7 +236,7 @@ resource "aws_security_group_rule" "worker_from_cluster" {
   to_port                  = 443
   protocol                 = "tcp"
   security_group_id        = aws_security_group.worker_sg.id
-  source_security_group_id = aws_security_group.cluster_sg.id
+  source_security_group_id = module.eks.cluster_security_group_id
   description              = "Allow traffic from cluster control plane to worker nodes"
 }
 
