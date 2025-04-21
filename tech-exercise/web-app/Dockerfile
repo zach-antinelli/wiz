@@ -21,5 +21,3 @@ RUN python3 -m pip install --upgrade pip -r requirements.txt
 
 ENTRYPOINT ["python3"]
 CMD ["app.py"]
-
-
