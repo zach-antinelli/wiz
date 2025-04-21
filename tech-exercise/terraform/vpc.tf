@@ -109,6 +109,22 @@ resource "aws_security_group" "cluster_sg" {
   description = "Security group for EKS cluster control plane"
   vpc_id      = module.vpc.vpc_id
 
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.worker_sg.id]
+    description     = "Allow workers to send communication to the cluster API Server"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
   tags = merge(
     var.tags,
     {
@@ -122,6 +138,30 @@ resource "aws_security_group" "worker_sg" {
   description = "Security group for EKS worker nodes"
   vpc_id      = module.vpc.vpc_id
 
+  ingress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "-1"
+    self        = true
+    description = "Allow nodes to communicate with each other"
+  }
+
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cluster_sg.id]
+    description     = "Allow workers to receive communication from the cluster control plane"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
   tags = merge(
     var.tags,
     {
@@ -130,72 +170,109 @@ resource "aws_security_group" "worker_sg" {
   )
 }
 
-resource "aws_security_group_rule" "cluster_ingress_vpc" {
-  security_group_id = aws_security_group.cluster_sg.id
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [var.vpc_cidr]
-  description       = "Allow access to Kubernetes API from within the VPC"
+resource "aws_security_group" "db_vm_sg" {
+  name        = "${var.cluster_name}-db-vm-sg"
+  description = "Security group for database VM instance"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.management_ip_cidr]
+    description = "SSH access from management IP"
+  }
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app_sg.id]
+    description     = "MySQL access from EKS application pods"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-db-vm-sg"
+    }
+  )
 }
 
-resource "aws_security_group_rule" "cluster_api_public" {
-  description       = "Allow current public IP CIDR to communicate with the cluster API"
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [var.management_ip_cidr]
-  security_group_id = aws_security_group.cluster_sg.id
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.cluster_name}-alb-sg"
+  description = "Security group for Application Load Balancer"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP access from anywhere"
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS access from anywhere"
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-alb-sg"
+    }
+  )
 }
 
-resource "aws_security_group_rule" "cluster_egress" {
-  security_group_id = aws_security_group.cluster_sg.id
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Allow all outbound traffic"
+resource "aws_security_group" "app_sg" {
+  name        = "${var.cluster_name}-app-sg"
+  description = "Security group for application pods in Kubernetes"
+  vpc_id      = module.vpc.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-app-sg"
+    }
+  )
 }
 
-resource "aws_security_group_rule" "workers_egress" {
-  security_group_id = aws_security_group.worker_sg.id
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Allow all outbound traffic"
-}
-
-resource "aws_security_group_rule" "workers_ingress_cluster" {
-  security_group_id        = aws_security_group.worker_sg.id
-  type                     = "ingress"
-  from_port                = 443
-  to_port                  = 443
+resource "aws_security_group_rule" "alb_to_app" {
+  type                     = "egress"
+  from_port                = 8080
+  to_port                  = 8080
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.cluster_sg.id
-  description              = "Allow workers to receive communication from the cluster control plane"
+  security_group_id        = aws_security_group.alb_sg.id
+  source_security_group_id = aws_security_group.app_sg.id
+  description              = "Allow traffic only to app pods on port 8080"
 }
 
-resource "aws_security_group_rule" "cluster_ingress_workers" {
-  security_group_id        = aws_security_group.cluster_sg.id
+resource "aws_security_group_rule" "app_from_alb" {
   type                     = "ingress"
-  from_port                = 443
-  to_port                  = 443
+  from_port                = 8080
+  to_port                  = 8080
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.worker_sg.id
-  description              = "Allow workers to send communication to the cluster API Server"
-}
-
-resource "aws_security_group_rule" "workers_ingress_self" {
-  security_group_id = aws_security_group.worker_sg.id
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 65535
-  protocol          = "-1"
-  self              = true
-  description       = "Allow nodes to communicate with each other"
+  security_group_id        = aws_security_group.app_sg.id
+  source_security_group_id = aws_security_group.alb_sg.id
+  description              = "Allow traffic from ALB on container port"
 }

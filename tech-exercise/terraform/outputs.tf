@@ -6,7 +6,7 @@ output "eks_app_pod_sg_id" {
 
 output "eks_app_alb_sg_id" {
   description = "Security group ID for the application load balancer"
-  value       = aws_security_group.app_sg.id
+  value       = aws_security_group.alb_sg.id
 }
 
 output "eks_cluster_name" {
