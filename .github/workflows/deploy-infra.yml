@@ -70,12 +70,6 @@ jobs:
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
-      - name: taint node group
-        working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: |
-          terraform state list | grep eks_managed_node_group | xargs -I{} terraform taint {}
-        continue-on-error: true
-
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |

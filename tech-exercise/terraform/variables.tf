@@ -111,3 +111,4 @@ variable "management_ip_cidr" {
   description = "CIDR block for management IP"
   type        = string
 }
+
