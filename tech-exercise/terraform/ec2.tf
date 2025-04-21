@@ -56,38 +56,18 @@ resource "aws_security_group" "alb_sg" {
     description = "HTTPS access from anywhere"
   }
 
-  egress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.app_sg.id]
-    description     = "Allow traffic only to app pods on port 8080"
-  }
-
   tags = merge(
     var.tags,
     {
       Name = "${var.cluster_name}-alb-sg"
     }
   )
-
-  depends_on = [
-    aws_security_group.app_sg
-  ]
 }
 
 resource "aws_security_group" "app_sg" {
   name        = "${var.cluster_name}-app-sg"
   description = "Security group for application pods in Kubernetes"
   vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-    description     = "Allow traffic from ALB on container port"
-  }
 
   egress {
     from_port   = 0
@@ -103,6 +83,26 @@ resource "aws_security_group" "app_sg" {
       Name = "${var.cluster_name}-app-sg"
     }
   )
+}
+
+resource "aws_security_group_rule" "alb_to_app" {
+  type                     = "egress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.alb_sg.id
+  source_security_group_id = aws_security_group.app_sg.id
+  description              = "Allow traffic only to app pods on port 8080"
+}
+
+resource "aws_security_group_rule" "app_from_alb" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.app_sg.id
+  source_security_group_id = aws_security_group.alb_sg.id
+  description              = "Allow traffic from ALB on container port"
 }
 
 data "aws_ami" "ubuntu_2004" {
