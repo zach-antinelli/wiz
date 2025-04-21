@@ -70,10 +70,6 @@ jobs:
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
-      - name: taint node group
-        working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: terraform taint 'module.eks.aws_eks_node_group.this["tech-exercise-node-group"]'
-
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
