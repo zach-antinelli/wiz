@@ -75,7 +75,6 @@ jobs:
         run: |
           terraform plan -out=tfplan \
             -var="app_name=${{ vars.APP_NAME }}" \
-            -var="region=${{ vars.AWS_REGION }}" \
             -var="key_name=${{ secrets.AWS_SSH_KEY_NAME }}" \
             -var="db_password=${{ secrets.AWS_DB_PASSWORD }}" \
             -var="bucket_name=${{ secrets.AWS_S3_BUCKET_NAME }}" \

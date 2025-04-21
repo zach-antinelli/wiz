@@ -133,35 +133,3 @@ module "eks_blueprints_addons" {
   tags = var.tags
 }
 
-#resource "kubectl_manifest" "namespace" {
-#  yaml_body = <<-YAML
-#apiVersion: v1
-#kind: Namespace
-#metadata:
-#  name: ${var.app_name}-ns
-#  labels:
-#    name: ${var.app_name}-ns
-#YAML
-#
-#  depends_on = [module.eks_blueprints_addons]
-#}
-#
-#resource "kubectl_manifest" "security_group_policy" {
-#  yaml_body = <<-YAML
-#apiVersion: vpcresources.k8s.aws/v1beta1
-#kind: SecurityGroupPolicy
-#metadata:
-#  name: ${var.app_name}
-#  namespace: default
-#spec:
-#  podSelector:
-#    matchLabels:
-#      app: ${var.app_name}
-#  securityGroups:
-#    groupIds:
-#      - ${aws_security_group.app_sg.id}
-#YAML
-#
-#  depends_on = [kubectl_manifest.namespace, module.eks_blueprints_addons]
-#}
-

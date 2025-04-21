@@ -2,7 +2,8 @@
 .test/
 *.internal.*
 *.test
-**/deploy.sh
+*.yaml
+deploy.sh
 
 ## MAC ##
 # General
@@ -12,7 +13,6 @@
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*

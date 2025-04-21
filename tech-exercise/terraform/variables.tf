@@ -7,6 +7,7 @@ variable "region" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
+  default     = "tech-exercise"
 }
 
 variable "kubernetes_version" {
@@ -57,13 +58,6 @@ variable "node_group_desired_size" {
   default     = 3
 }
 
-variable "node_instance_type" {
-  description = "EC2 instance type for EKS nodes"
-  type        = string
-  default     = "t3.medium"
-
-}
-
 variable "node_volume_size" {
   description = "Size of the node EBS volume"
   type        = number
@@ -74,24 +68,23 @@ variable "node_volume_size" {
 variable "node_group_capacity_type" {
   description = "Capacity type for the node group"
   type        = string
-  default     = "SPOT"
-
-  validation {
-    condition     = contains(["ON_DEMAND", "SPOT"], var.node_group_capacity_type)
-    error_message = "Capacity type must be either ON_DEMAND or SPOT"
-  }
+  default     = "ON_DEMAND"
 }
 
 variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
-  default     = {}
+  default = {
+    Environment = "prod"
+    Managed_by  = "Terraform"
+    Project     = "Wiz Tech Exercise"
+    Owner       = "zantinelli"
+  }
 }
 
 variable "bucket_name" {
   description = "Name of the S3 bucket to be created"
   type        = string
-  default     = "zantinelli-wiz-tech-exercise"
 
   validation {
     condition     = can(regex("^[a-z0-9.-]{3,63}$", var.bucket_name))
