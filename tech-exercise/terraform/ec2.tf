@@ -70,6 +70,10 @@ resource "aws_security_group" "alb_sg" {
       Name = "${var.cluster_name}-alb-sg"
     }
   )
+
+  depends_on = [
+    aws_security_group.app_sg
+  ]
 }
 
 resource "aws_security_group" "app_sg" {
