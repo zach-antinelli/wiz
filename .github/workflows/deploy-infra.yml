@@ -70,6 +70,10 @@ jobs:
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: taint node group
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: terraform taint 'module.eks.aws_eks_node_group.this["tech-exercise-node-group"]'
+
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
@@ -80,10 +84,6 @@ jobs:
             -var="bucket_name=${{ secrets.AWS_S3_BUCKET_NAME }}" \
             -var="management_ip_cidr=${{ secrets.AWS_MANAGEMENT_IP_CIDR }}" \
             -var="node_group_instance_type=m5.large"
-
-      - name: list files
-        working-directory: ${{ vars.TF_WORKING_DIR }}
-        run: ls -l
 
       - name: apply
         working-directory: ${{ vars.TF_WORKING_DIR }}
