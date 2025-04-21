@@ -66,7 +66,7 @@ variable "node_group_volume_size" {
 
 variable "node_group_instance_type" {
   description = "Instance type for the node group"
-  type        = number
+  type        = string
   default     = "m5.large"
 }
 
