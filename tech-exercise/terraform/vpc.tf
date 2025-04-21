@@ -109,14 +109,6 @@ resource "aws_security_group" "cluster_sg" {
   description = "Security group for EKS cluster control plane"
   vpc_id      = module.vpc.vpc_id
 
-  ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.worker_sg.id]
-    description     = "Allow workers to send communication to the cluster API Server"
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -144,14 +136,6 @@ resource "aws_security_group" "worker_sg" {
     protocol    = "-1"
     self        = true
     description = "Allow nodes to communicate with each other"
-  }
-
-  ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.cluster_sg.id]
-    description     = "Allow workers to receive communication from the cluster control plane"
   }
 
   egress {
@@ -255,6 +239,26 @@ resource "aws_security_group" "app_sg" {
       Name = "${var.cluster_name}-app-sg"
     }
   )
+}
+
+resource "aws_security_group_rule" "cluster_from_worker" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.cluster_sg.id
+  source_security_group_id = aws_security_group.worker_sg.id
+  description              = "Allow traffic from worker nodes to cluster control plane"
+}
+
+resource "aws_security_group_rule" "worker_from_cluster" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.worker_sg.id
+  source_security_group_id = aws_security_group.cluster_sg.id
+  description              = "Allow traffic from cluster control plane to worker nodes"
 }
 
 resource "aws_security_group_rule" "alb_to_app" {
