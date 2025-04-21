@@ -44,12 +44,12 @@ module "eks" {
 
   eks_managed_node_groups = {
     "${var.cluster_name}-node-group" = {
-      ami_type      = "AL2023_x86_64_STANDARD"
-      min_size      = var.node_group_min_size
-      max_size      = var.node_group_max_size
-      desired_size  = var.node_group_desired_size
-      instance_type = var.node_group_instance_type
-      capacity_type = var.node_group_capacity_type
+      ami_type       = "AL2023_x86_64_STANDARD"
+      min_size       = var.node_group_min_size
+      max_size       = var.node_group_max_size
+      desired_size   = var.node_group_desired_size
+      instance_types = [var.node_group_instance_type]
+      capacity_type  = var.node_group_capacity_type
 
       subnet_ids         = module.vpc.private_subnets
       security_group_ids = [aws_security_group.worker_sg.id]
