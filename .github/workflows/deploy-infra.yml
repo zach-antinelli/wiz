@@ -70,6 +70,10 @@ jobs:
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: refresh
+        working-directory: ${{ vars.TF_WORKING_DIR }}
+        run: terraform refresh
+
       - name: plan
         working-directory: ${{ vars.TF_WORKING_DIR }}
         run: |
