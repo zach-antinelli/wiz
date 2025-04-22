@@ -126,6 +126,8 @@ class MySQLDB:
         self.user = MYSQL_USER
         self.password = MYSQL_PW
         self.database = MYSQL_DB
+        ssl_disabled = True
+
         self.connection = None
 
     def connect(self) -> None:
