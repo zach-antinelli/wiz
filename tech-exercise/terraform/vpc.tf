@@ -260,23 +260,3 @@ resource "aws_security_group_rule" "app_from_alb" {
   description              = "Allow traffic from ALB on container port"
 }
 
-resource "aws_security_group_rule" "worker_from_app_dns" {
-  type                     = "ingress"
-  from_port                = 53
-  to_port                  = 53
-  protocol                 = "udp"
-  security_group_id        = aws_security_group.worker_sg.id
-  source_security_group_id = aws_security_group.app_sg.id
-  description              = "Allow DNS queries from app pods"
-}
-
-resource "aws_security_group_rule" "worker_from_app_dns_tcp" {
-  type                     = "ingress"
-  from_port                = 53
-  to_port                  = 53
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.worker_sg.id
-  source_security_group_id = aws_security_group.app_sg.id
-  description              = "Allow DNS TCP queries from app pods"
-}
-

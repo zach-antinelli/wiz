@@ -83,7 +83,7 @@ module "eks" {
     }
   }
 
-  tag = var.tags
+  tags = var.tags
 }
 
 module "eks_blueprints_addons" {
