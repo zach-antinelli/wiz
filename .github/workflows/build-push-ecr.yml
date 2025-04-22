@@ -1,12 +1,13 @@
 name: Build and Push to ECR
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "tech-exercise/web-app/Dockerfile"
-      - "tech-exercise/web-app/gensen/**"
+  #push:
+  #  branches:
+  #    - main
+    #paths:
+    #  - "tech-exercise/web-app/Dockerfile"
+    #  - "tech-exercise/web-app/gensen/**"
+  workflow_dispatch:
 
 jobs:
   push-to-ecr:

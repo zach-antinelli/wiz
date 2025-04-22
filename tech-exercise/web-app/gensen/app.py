@@ -137,6 +137,7 @@ class MySQLDB:
             user=self.user,
             password=self.password,
             database=self.database,
+            ssl_disabled=True,
         )
 
     def disconnect(self) -> None:

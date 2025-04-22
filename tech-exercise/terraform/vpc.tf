@@ -96,6 +96,10 @@ resource "aws_security_group" "vpc_endpoints" {
     cidr_blocks = [var.vpc_cidr]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = merge(
     var.tags,
     {
@@ -123,6 +127,10 @@ resource "aws_security_group" "worker_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound traffic"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   tags = merge(
@@ -162,6 +170,10 @@ resource "aws_security_group" "db_vm_sg" {
     description = "Allow all outbound traffic"
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = merge(
     var.tags,
     {
@@ -191,6 +203,10 @@ resource "aws_security_group" "alb_sg" {
     description = "HTTPS access from anywhere"
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = merge(
     var.tags,
     {
@@ -210,6 +226,10 @@ resource "aws_security_group" "app_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound traffic"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   tags = merge(
