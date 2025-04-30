@@ -67,7 +67,6 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 | Tool                       | Use                               |
 | -------------------------- | --------------------------------- |
 | IAM Policies               | Risk mitigation                   |
-| IAM Permissions boundaries | Reduce overly permissive policies |
 
 ### Responsive
 

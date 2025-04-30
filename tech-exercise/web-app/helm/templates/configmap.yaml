@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.app.name | quote }}
+  namespace: {{ .Values.app.name | quote }}
+  labels:
+    app: {{ .Values.app.name | quote }}
+data:
+  GENSEN_HOST: {{ .Values.app.host | quote }}
+  GENSEN_PORT: {{ .Values.app.port | quote }}
+  GENSEN_USER: {{ .Values.app.user | quote }}
+  MYSQL_DB: {{ .Values.app.name | quote }}
+  MYSQL_HOST: {{ .Values.database.host | quote }}
+  MYSQL_USER: {{ .Values.app.name | quote }}

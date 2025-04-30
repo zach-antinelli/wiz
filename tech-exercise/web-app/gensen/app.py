@@ -4,7 +4,7 @@ from auth import create_access_token, get_user_from_cookie
 from config import Config
 from models import CommandRequest, CommandResponse
 import uvicorn
-from commands import CommandProcessor
+from terminal import Terminal
 from fastapi import FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,7 +15,7 @@ logger = config.logger
 
 app = FastAPI(title="GenAI Sentry")
 templates = Jinja2Templates(directory="templates")
-processor = CommandProcessor(config)
+processor = Terminal(config)
 
 
 @app.get("/", response_class=HTMLResponse)

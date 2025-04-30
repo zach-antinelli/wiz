@@ -9,7 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 
-class CommandProcessor:
+class Terminal:
     def __init__(self, config):
         self.logger = config.logger
         self.claude = Claude()
@@ -25,12 +25,6 @@ class CommandProcessor:
 
     def format_results(self, result: list[dict]) -> str:
         """Format SQL results into table output."""
-        if not result:
-            return "Query returned no results"
-
-        if "error" in result[0]:
-            return result[0]["error"]
-
         console = Console(
             file=io.StringIO(), force_terminal=True, width=120, color_system="standard"
         )
@@ -113,12 +107,26 @@ class CommandProcessor:
             query_message = f"Executing query: {sql_query}\n\n"
             result = self.mysql.execute_query(sql_query)
 
-            if result and isinstance(result, list):
-                row_count = len(result)
-                self.logger.info("Query was successful, returning %d rows", row_count)
-                formatted_result = self.format_results(result)
-                return query_message + formatted_result
+            if isinstance(result, list) and result:
+                if "error" in result[0]:
+                    # Query failed
+                    msg = f"Query execution failed: {result[0]['error']}"
+                    self.logger.error(msg)
+                    return msg
+                else:
+                    # Query succeeded, possibly with results
+                    row_count = len(result)
+                    self.logger.info(
+                        "Query was successful, returning %d rows", row_count
+                    )
+                    formatted_result = self.format_results(result)
+                    return query_message + formatted_result
+            elif isinstance(result, list) and not result:
+                # Query succeeded, but no results
+                self.logger.info("Query was successful, but returned no results")
+                return query_message + "Query returned no results."
             else:
+                # Unexpected result
                 msg = f"Query execution failed: {result}"
                 self.logger.error(msg)
                 return msg

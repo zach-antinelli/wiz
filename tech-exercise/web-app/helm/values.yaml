@@ -1,0 +1,34 @@
+# Configuration for the web app
+app:
+  name: gensen
+  port: 8080
+  host: "0.0.0.0"
+  # User and pw for the web app
+  user:
+  password:
+  # API Key for the Anthropic API
+  anthropic_api_key:
+
+# Settings for the app to connect to the database
+database:
+  host:
+  password:
+
+# Image details for the app
+image:
+  repository:
+  tag:
+  pullPolicy: IfNotPresent
+
+# AWS Settings
+aws:
+  # Comma separated list of public subnets
+  public_subnets:
+  alb:
+    # ALB Security group ID
+    security_group_id:
+    # ARN of the certificate used by the ALB
+    acm_cert_arn:
+  pod:
+    # Pod Security group ID
+    security_group_id:

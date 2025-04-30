@@ -2,8 +2,7 @@
 .test/
 *.internal.*
 *.test
-*.yaml
-deploy.sh
+*gensen*.yaml
 
 ## MAC ##
 # General
