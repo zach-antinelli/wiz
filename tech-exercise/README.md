@@ -20,16 +20,19 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 ## Technology stack
 
 - Terraform infrastructure deployment
-- Web Application
-  - EC2 instance running DB
-    - Overly permissive IAM role
-    - DB allows local authentication
-    - DB Backup automation to S3
+- Web application
+  - Custom app built with Python: [gensen](web-app/gensen)
+  - Custom helm chart to deploy app: [helm](web-app/helm)
+  - Hosted publicly at [wiz-tech-exercise.zachantinelli.me](https://wiz-tech-exercise.zachantinelli.me)
 - K8S cluster
-  - Container with webapp running with cluster admin SA
+  - Pod with web app running cluster admin SA
+  - Load balancer controller manages ingress and ALB access to webapp
+- EC2 instance running DB
+  - Overly permissive IAM role
+  - DB allows local authentication
+  - DB Backup automation to S3
 - S3 Bucket for object storage
   - Database backups
-  - Scripts, content
 - Code stored in GitHub
 - GitHub actions pipelines
   - Automate Terraform deployment
@@ -38,10 +41,9 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 ## Misconfigurations
 
 - IMDSv1 for EC2 instance
-  - [AWS Docs](https://aws.amazon.com/blogs/security/get-the-full-benefits-of-imdsv2-and-disable-imdsv1-across-your-aws-infrastructure/)
-  - Remediated with Security Hub
-- ? for DB
-- ? for K8S
+  - Remediated with Lambda function executed through AWS Config
+- EKS cluster endpoint available on `0.0.0.0/0`
+  - Remediated with Lambda function executed through AWS Config
 
 ## Security Tools
 
@@ -64,9 +66,11 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 [AWS Preventative Controls](https://docs.aws.amazon.com/prescriptive-guidance/latest/aws-security-controls/preventative-controls.html)
 
-| Tool                       | Use                               |
-| -------------------------- | --------------------------------- |
-| IAM Policies               | Risk mitigation                   |
+| Tool            | Use             |
+| --------------- | --------------- |
+| IAM Policies    | Risk mitigation |
+| Security groups | Risk mitigation |
+| GuardDuty       | Risk mitigation |
 
 ### Responsive
 
@@ -75,5 +79,3 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 - GuardDuty: Threat Detection and Response
   - Simulate a detection and response action
 - Security Hub: Security finding remediation
-
-**NOTE**: Make a Python script to query results, store in S3 and pull down locally.
