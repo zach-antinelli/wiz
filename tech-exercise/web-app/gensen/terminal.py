@@ -1,12 +1,8 @@
-import io
 import re
 from pathlib import Path
 
 from db import MySQLDB
 from llm import Claude
-from rich import box
-from rich.console import Console
-from rich.table import Table
 
 
 class Terminal:
@@ -24,47 +20,92 @@ class Terminal:
         }
 
     def format_results(self, result: list[dict]) -> str:
-        """Format SQL results into table output."""
-        console = Console(
-            file=io.StringIO(), force_terminal=True, width=120, color_system="standard"
-        )
+        """Format SQL results into a clean, readable output."""
+        if not result:
+            return "No results found."
 
-        table = Table(
-            box=box.DOUBLE_EDGE,
-            show_header=True,
-            header_style="bold white",
-            show_lines=True,
-            show_edge=True,
-            padding=(0, 1),
-            border_style="white",
-        )
+        output = []
 
+        if len(result) > 10:
+            return self._format_table_results(result)
+
+        for i, row in enumerate(result):
+            output.append(f"Record {i + 1} of {len(result)}")
+            output.append("─" * 80)
+
+            max_key_length = max(len(str(key)) for key in row.keys())
+
+            for key, value in row.items():
+                key_str = str(key).ljust(max_key_length + 2)
+                value_str = "" if value is None else str(value)
+
+                if len(value_str) > 80:
+                    wrapped_value = self._wrap_text(value_str, 80, max_key_length + 4)
+                    output.append(f"{key_str}: {wrapped_value}")
+                else:
+                    output.append(f"{key_str}: {value_str}")
+
+            if i < len(result) - 1:
+                output.append("\n")
+
+        return "\n".join(output)
+
+    def _wrap_text(self, text: str, width: int, indent: int) -> str:
+        """Wrap text to the specified width with proper indentation."""
+        if not text:
+            return ""
+
+        lines = []
+        first_line = True
+
+        while text:
+            if first_line:
+                current_width = width
+                prefix = ""
+                first_line = False
+            else:
+                current_width = width - indent
+                prefix = " " * indent
+
+            if len(text) <= current_width:
+                lines.append(f"{prefix}{text}")
+                break
+
+            split_point = text.rfind(" ", 0, current_width)
+            if split_point == -1:
+                split_point = current_width
+
+            lines.append(f"{prefix}{text[:split_point]}")
+            text = text[split_point:].lstrip()
+
+        return "\n".join(lines)
+
+    def _format_table_results(self, result: list[dict]) -> str:
+        """Format results as a simplified table for when there are many rows."""
         columns = list(result[0].keys())
-        num_columns = len(columns)
-        available_width = console.width - (num_columns * 3) - 2
-        min_width = max(10, available_width // (num_columns * 2))
-        max_width = max(20, available_width // num_columns)
-
-        for col in columns:
-            table.add_column(
-                str(col),
-                justify="left",
-                style="white",
-                min_width=min_width,
-                max_width=max_width,
-                overflow="fold",
-            )
+        max_widths = {col: len(str(col)) for col in columns}
 
         for row in result:
-            formatted_values = [
-                str(val) if val is not None else "" for val in row.values()
-            ]
-            table.add_row(*formatted_values)
+            for col in columns:
+                value = "" if row[col] is None else str(row[col])
+                display_value = value[:40] + "..." if len(value) > 40 else value
+                max_widths[col] = max(max_widths[col], len(display_value))
 
-        console.print(table)
-        output = console.file.getvalue()
+        header = " | ".join(str(col).ljust(max_widths[col]) for col in columns)
+        separator = "-" * len(header)
 
-        return re.sub(r"\x1b\[[0-9;]*[mGKH]", "", output)
+        rows = []
+        for row in result:
+            formatted_row = []
+            for col in columns:
+                value = "" if row[col] is None else str(row[col])
+                display_value = value[:40] + "..." if len(value) > 40 else value
+                formatted_row.append(display_value.ljust(max_widths[col]))
+            rows.append(" | ".join(formatted_row))
+
+        table = [header, separator] + rows
+        summary = f"\nDisplayed {len(result)} records. Long values are truncated in table view."
+        return "\n".join(table) + summary
 
     def process_command(self, command: str) -> str:
         """Process commandline."""
@@ -109,12 +150,10 @@ class Terminal:
 
             if isinstance(result, list) and result:
                 if "error" in result[0]:
-                    # Query failed
                     msg = f"Query execution failed: {result[0]['error']}"
                     self.logger.error(msg)
                     return msg
                 else:
-                    # Query succeeded, possibly with results
                     row_count = len(result)
                     self.logger.info(
                         "Query was successful, returning %d rows", row_count
@@ -122,11 +161,9 @@ class Terminal:
                     formatted_result = self.format_results(result)
                     return query_message + formatted_result
             elif isinstance(result, list) and not result:
-                # Query succeeded, but no results
                 self.logger.info("Query was successful, but returned no results")
                 return query_message + "Query returned no results."
             else:
-                # Unexpected result
                 msg = f"Query execution failed: {result}"
                 self.logger.error(msg)
                 return msg

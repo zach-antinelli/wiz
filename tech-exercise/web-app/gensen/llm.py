@@ -1,5 +1,5 @@
 from anthropic import Anthropic
-
+from schema import PROWLER
 
 class Claude:
     """Claude Language model handler."""
@@ -15,6 +15,7 @@ class Claude:
         system_prompt = " ".join(
             [
                 "Return a MySQL query based on natural langage instruction.",
+                "We are using MySQL 8.0.41.",
                 "Ensure the query is syntactically correct.",
                 "Use proper MySQL conventions and best practices.",
                 "Ensure to use proper MySQL syntax.",
@@ -22,6 +23,10 @@ class Claude:
                 "Do not include any explanations, markdown, or comments.",
                 "Only return the raw MySQL query as plain text.",
                 "Be very careful to not make any errors.",
+                f"Take careful note of the following schema: {PROWLER}",
+                "If a natural language query is made and it doesn't exacltly match the column,"
+                "name make an attempt to match the column name or names with the query based on",
+                "the provided schema or schemas for the relevant table.",
                 "If a query such as 'get 5 from X' is given, return 5 rows from X",
                 "with X being a table name. For example: 'get 5 from prowler'.",
                 "If a query such as 'get results from X' is given, return all results from X.",
