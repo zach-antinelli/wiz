@@ -81,15 +81,19 @@ class Terminal:
         return "\n".join(lines)
 
     def _format_table_results(self, result: list[dict]) -> str:
-        """Format results as a simplified table for when there are many rows."""
+        """Format results as a simplified table with horizontal scrolling support."""
         columns = list(result[0].keys())
-        max_widths = {col: len(str(col)) for col in columns}
+
+        max_column_width = 80
+        min_column_width = 20
+
+        max_widths = {col: max(len(str(col)), min_column_width) for col in columns}
 
         for row in result:
             for col in columns:
                 value = "" if row[col] is None else str(row[col])
-                display_value = value[:40] + "..." if len(value) > 40 else value
-                max_widths[col] = max(max_widths[col], len(display_value))
+                display_value = value[:max_column_width] + "..." if len(value) > max_column_width else value
+                max_widths[col] = max(max_widths[col], min(len(display_value), max_column_width + 3))
 
         header = " | ".join(str(col).ljust(max_widths[col]) for col in columns)
         separator = "-" * len(header)
@@ -99,13 +103,12 @@ class Terminal:
             formatted_row = []
             for col in columns:
                 value = "" if row[col] is None else str(row[col])
-                display_value = value[:40] + "..." if len(value) > 40 else value
+                display_value = value[:max_column_width] + "..." if len(value) > max_column_width else value
                 formatted_row.append(display_value.ljust(max_widths[col]))
             rows.append(" | ".join(formatted_row))
 
         table = [header, separator] + rows
-        summary = f"\nDisplayed {len(result)} records. Long values are truncated in table view."
-        return "\n".join(table) + summary
+        return "\n".join(table)
 
     def process_command(self, command: str) -> str:
         """Process commandline."""

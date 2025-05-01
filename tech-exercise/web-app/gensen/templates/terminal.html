@@ -89,8 +89,8 @@
         .output {
             color: #e0e0e0;
             margin: 10px 0 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            white-space: pre;
+            word-wrap: normal;
             font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
             overflow-x: auto;
             line-height: 1.2;
@@ -99,6 +99,14 @@
             padding-left: 10px;
             padding-right: 10px;
             max-width: 100%;
+            display: block;
+        }
+
+        .output-table {
+            overflow-x: auto;
+            max-width: 100%;
+            display: block;
+            padding-bottom: 10px;
         }
 
         .file-input {
@@ -167,7 +175,13 @@
 
         function addOutput(message) {
             const output = document.createElement('div');
-            output.className = 'output';
+
+            if (message.includes('|') && message.includes('\n')) {
+                output.className = 'output output-table';
+            } else {
+                output.className = 'output';
+            }
+
             output.textContent = message;
             terminalBody.appendChild(output);
             terminalBody.scrollTop = terminalBody.scrollHeight;

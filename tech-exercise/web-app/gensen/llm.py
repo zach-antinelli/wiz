@@ -26,7 +26,7 @@ class Claude:
                 f"Take careful note of the following schema: {PROWLER}",
                 "If a natural language query is made and it doesn't exacltly match the column,"
                 "name make an attempt to match the column name or names with the query based on",
-                "the provided schema or schemas for the relevant table.",
+                "the provided schema for the relevant table.",
                 "If a query such as 'get 5 from X' is given, return 5 rows from X",
                 "with X being a table name. For example: 'get 5 from prowler'.",
                 "If a query such as 'get results from X' is given, return all results from X.",
