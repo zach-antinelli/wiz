@@ -38,6 +38,10 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
   - Automate Terraform deployment
   - Build and push image to ECR
 
+### Infrastructure diagram
+
+![Infrastructure](infra.svg)
+
 ## Misconfigurations
 
 - IMDSv1 for EC2 instance
