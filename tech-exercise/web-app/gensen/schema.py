@@ -1,5 +1,23 @@
+SECURITY_HUB= """
+- Default to this table 'security_hub' if no table is specified another.
+- 'SECURITY_HUB' or 'security_hub' can be used to refer to this table.
+- Columns in the 'security_hub' table follow this following format:
+    resource_id VARCHAR(255),
+    title VARCHAR(255),
+    description TEXT,
+    timestamp DATETIME,
+    severity VARCHAR(20),
+    compliance_status VARCHAR(20),
+    status VARCHAR(20),
+    product VARCHAR(50),
+    resource_type VARCHAR(100),
+    arn VARCHAR(255),
+    generator_id VARCHAR(100),
+    finding_id VARCHAR(255),
+    PRIMARY KEY (finding_id)
+"""
+
 PROWLER = """
-- Default to this table 'prowler' if no table is specified.
 - 'PROWLER' or 'prowler' can be used to refer to this table.
 - Columns in the 'prowler' table follow this following format:
     timestamp VARCHAR(20),

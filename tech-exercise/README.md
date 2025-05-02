@@ -11,12 +11,12 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
   - **[Architecture Diagram](#infrastructure-diagram)**
 
 - **[Misconfigurations](#misconfigurations)**
-  Identified issues and their remediations.
+  Intentionally introduced misconfigurations and their remediation.
 
 - **[Security Tools](#security-tools)**
-  - 🔍 **[Detective](#detective)**: Tools for monitoring and detection.
-  - 🛡️ **[Preventative](#preventative)**: Tools for proactive security.
-  - 🚨 **[Responsive](#responsive)**: Tools for incident response.
+  - 🔍 **[Detective](#detective)**: Monitoring and detection.
+  - 🛡️ **[Preventative](#preventative)**: Prevenative controls.
+  - 🚨 **[Responsive](#responsive)**: Remediation.
 
 ## Technology stack
 
@@ -40,6 +40,8 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
   - Build and push image to ECR
 
 ### Infrastructure diagram
+
+**Click for a bigger image**
 
 <img src="https://zach-antinelli.github.io/wiz/infra.svg" alt="Architecture" width="75%" />
 
@@ -77,7 +79,6 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 [AWS Responsive Controls](https://docs.aws.amazon.com/prescriptive-guidance/latest/aws-security-controls/responsive-controls.html)
 
-| Tool             | Use                           |
-| ---------------- | ----------------------------- |
-| AWS Config + SSM | Remediate misconfigurations   |
-| GuardDuty        | Threat Detection and Response |
+| Tool             | Use                         |
+| ---------------- | --------------------------- |
+| AWS Config + SSM | Remediate misconfigurations |

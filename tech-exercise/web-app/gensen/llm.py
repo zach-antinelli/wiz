@@ -1,5 +1,5 @@
 from anthropic import Anthropic
-from schema import PROWLER
+from schema import PROWLER, SECURITY_HUB
 
 class Claude:
     """Claude Language model handler."""
@@ -23,7 +23,10 @@ class Claude:
                 "Only return the raw MySQL query as plain text.",
                 "Be very careful to not make any errors.",
                 "Table schemas:\n"
+                f"'security_hub': {SECURITY_HUB}",
                 f"'prowler': {PROWLER}",
+                "If the user provides 'from', 'in', 'table', you assume"
+                "they don't want results from the default table. For example, get 5 from prowler.",
                 "Query validity:\n"
                 "If a natural language query is made and it doesn't exacltly match the column,"
                 "name make an attempt to match the column name or names with the query based on",
@@ -36,6 +39,7 @@ class Claude:
                 "'get X from Y where Z'. X could mean 'rows', 'columns', 'count', etc.",
                 "Y could mean a table name, and Z could mean a condition.",
                 "A query such as 'get dbs', and 'get tables' are valid queries."
+                "You should return a query to get the list of databases or tables in this case.",
                 "Be flexible with the language and try to understand the intent.",
                 "If the language instruction requests to make changes to the database,",
                 "such as inserting, updating, or deleting data, then it is considered invalid.",
