@@ -40,7 +40,7 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 ### Infrastructure diagram
 
-![Infrastructure](https://zach-antinelli.github.io/wiz/infra.html)
+![Infrastructure](https://zach-antinelli.github.io/wiz/infra.svg)
 
 ## Misconfigurations
 
