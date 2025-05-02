@@ -1,10 +1,10 @@
 name: Terraform Deploy
 on:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "tech-exercise/terraform/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "tech-exercise/terraform/**"
   workflow_dispatch:
 
 jobs:

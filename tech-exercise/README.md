@@ -8,6 +8,7 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 - **[Technology Stack](#technology-stack)**
   Overview of the tools and technologies used.
+  - **[Architecture Diagram](#infrastructure-diagram)**
 
 - **[Misconfigurations](#misconfigurations)**
   Identified issues and their remediations.
@@ -40,14 +41,14 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 ### Infrastructure diagram
 
-<img src="https://zach-antinelli.github.io/wiz/infra.svg" width="75%">
+<img src="https://zach-antinelli.github.io/wiz/infra.svg" alt="Architecture" width="75%" />
 
 ## Misconfigurations
 
 - IMDSv1 for Database EC2 instance
-  - Detected by AWS Config, remediated with SSM automation document
+  - Detected by AWS Config, remediated with SSM automation document.
 - EKS cluster endpoint publicly available
-  - Detected by AWS Config, remediated with SSM automation document
+  - Detected by AWS Config, remediated with SSM automation document.
 
 ## Security Tools
 
@@ -55,17 +56,13 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 [AWS Detective Controls](https://docs.aws.amazon.com/prescriptive-guidance/latest/aws-security-controls/detective-controls.html)
 
-[AWS Inspector](https://docs.aws.amazon.com/inspector)
-
-[Prowler](https://github.com/prowler-cloud/prowler)
-
-| Tool         | Use                                        |
-| ------------ | ------------------------------------------ |
-| AWS Config   | Threat Detection                           |
-| GuardDuty    | Threat Detection                           |
-| Security Hub | Security and compliance findings           |
-| Inspector    | Vulnerability assessment and exposure      |
-| Prowler      | Open Source command-line security findings |
+| Tool                                                    | Use                                          |
+| ------------------------------------------------------- | -------------------------------------------- |
+| [Config](https://docs.aws.amazon.com/config)            | Detect misconfigurtions                      |
+| [GuardDuty](https://docs.aws.amazon.com/guardduty)      | Threat detection                             |
+| [Security Hub](https://docs.aws.amazon.com/securityhub) | Centralized security and compliance findings |
+| [Inspector](https://docs.aws.amazon.com/inspector)      | Vulnerability assessment and exposure        |
+| [Prowler](https://github.com/prowler-cloud/prowler)     | Open Source command-line security findings   |
 
 ### Preventative
 
@@ -75,14 +72,12 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 | --------------- | --------------- |
 | IAM Policies    | Risk mitigation |
 | Security groups | Risk mitigation |
-| GuardDuty       | Risk mitigation |
 
 ### Responsive
 
 [AWS Responsive Controls](https://docs.aws.amazon.com/prescriptive-guidance/latest/aws-security-controls/responsive-controls.html)
 
-| Tool             | Use                         |
-| ---------------- | --------------------------- |
-| AWS Config + SSM | Remediate misconfigurations |
-| GuardDuty        | Risk mitigation             |
-
+| Tool             | Use                           |
+| ---------------- | ----------------------------- |
+| AWS Config + SSM | Remediate misconfigurations   |
+| GuardDuty        | Threat Detection and Response |

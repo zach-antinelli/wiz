@@ -19,6 +19,8 @@ spec:
         - name: {{ .Values.app.name | quote }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: true
           ports:
             - containerPort: {{ .Values.app.port }}
           envFrom:
