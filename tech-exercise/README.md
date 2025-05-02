@@ -40,14 +40,14 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 ### Infrastructure diagram
 
-![Infrastructure](https://zach-antinelli.github.io/wiz/infra.svg)
+<img src="https://zach-antinelli.github.io/wiz/infra.svg" width="75%">
 
 ## Misconfigurations
 
-- IMDSv1 for EC2 instance
-  - Remediated with Lambda function executed through AWS Config
-- EKS cluster endpoint available on `0.0.0.0/0`
-  - Remediated with Lambda function executed through AWS Config
+- IMDSv1 for Database EC2 instance
+  - Detected by AWS Config, remediated with SSM automation document
+- EKS cluster endpoint publicly available
+  - Detected by AWS Config, remediated with SSM automation document
 
 ## Security Tools
 
@@ -61,6 +61,7 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 | Tool         | Use                                        |
 | ------------ | ------------------------------------------ |
+| AWS Config   | Threat Detection                           |
 | GuardDuty    | Threat Detection                           |
 | Security Hub | Security and compliance findings           |
 | Inspector    | Vulnerability assessment and exposure      |
@@ -80,6 +81,8 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 [AWS Responsive Controls](https://docs.aws.amazon.com/prescriptive-guidance/latest/aws-security-controls/responsive-controls.html)
 
-- GuardDuty: Threat Detection and Response
-  - Simulate a detection and response action
-- Security Hub: Security finding remediation
+| Tool             | Use                         |
+| ---------------- | --------------------------- |
+| AWS Config + SSM | Remediate misconfigurations |
+| GuardDuty        | Risk mitigation             |
+
