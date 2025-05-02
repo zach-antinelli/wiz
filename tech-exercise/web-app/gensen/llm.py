@@ -13,8 +13,6 @@ class Claude:
     def query(self, user_prompt: str, model: str = "claude-3-7-sonnet-20250219") -> str:
         """Query Claude with a prompt."""
         system_prompt = PROMPT
-            ]
-        )
 
         message = self.client.messages.create(
             model=model,
