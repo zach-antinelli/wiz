@@ -40,7 +40,7 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 ### Infrastructure diagram
 
-![Infrastructure](infra.svg)
+![Infrastructure](infra.drawio)
 
 ## Misconfigurations
 
