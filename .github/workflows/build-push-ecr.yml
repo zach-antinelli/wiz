@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "tech-exercise/web-app/Dockerfile"
-      - "tech-exercise/web-app/gensen/**"
+      - "tech-exercise/web-app/**"
   workflow_dispatch:
 
 jobs:
