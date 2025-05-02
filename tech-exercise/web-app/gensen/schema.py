@@ -1,6 +1,6 @@
 PROWLER = """
-- PROWLER or prowler can be used to refer to this table.
 - Default to this table 'prowler' if no table is specified.
+- 'PROWLER' or 'prowler' can be used to refer to this table.
 - Columns in the 'prowler' table follow this following format:
     timestamp VARCHAR(20),
     id VARCHAR(100),

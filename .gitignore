@@ -3,6 +3,7 @@
 *.internal.*
 *.test
 *gensen*.yaml
+*.bkp
 
 ## MAC ##
 # General
