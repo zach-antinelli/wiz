@@ -60,7 +60,7 @@ Thank you for the opportunity! I've laid out my architecture and overview of the
 
 | Tool                                                    | Use                                          |
 | ------------------------------------------------------- | -------------------------------------------- |
-| [Config](https://docs.aws.amazon.com/config)            | Detect misconfigurtions                      |
+| [Config](https://docs.aws.amazon.com/config)            | Detect misconfigurations                     |
 | [GuardDuty](https://docs.aws.amazon.com/guardduty)      | Threat detection                             |
 | [Security Hub](https://docs.aws.amazon.com/securityhub) | Centralized security and compliance findings |
 | [Inspector](https://docs.aws.amazon.com/inspector)      | Vulnerability assessment and exposure        |
